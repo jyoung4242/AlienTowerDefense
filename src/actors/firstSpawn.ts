@@ -14,7 +14,8 @@ const fieldShape = new Circle({
 export class firstSpawn extends Actor {
   animationStates = new ExFSM();
   gameOverSignal = new Signal("gameover");
-  speed: number = 45;
+  cameraShakeSignal = new Signal("cameraShake");
+  speed: number = 65;
   hp: number = 5;
   damage: number = 20;
   target: Ship | TurretTower | undefined;
@@ -66,6 +67,7 @@ export class firstSpawn extends Actor {
     if (other.owner.name === "ship") {
       (other.owner as Ship).hp -= this.damage;
       this.kill();
+      this.cameraShakeSignal.send();
 
       if ((other.owner as Ship).hp <= 0) {
         other.owner.kill();

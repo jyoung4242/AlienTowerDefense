@@ -1,12 +1,12 @@
-import { Engine, Scene } from "excalibur";
+import { Camera, Engine, Scene } from "excalibur";
 import { WaveSystem } from "./systems/wave";
 import { TurretTower } from "./actors/turretTower";
-import { playerShip } from "./actors/ship";
-import { firstEnemy } from "./actors/firstEnemy";
 import { decMoney, getMoney } from "./UI/UI";
+import { Signal } from "./lib/Signals";
 
 class MainScene extends Scene {
   waveManager: WaveSystem;
+  cameraShakeSignal = new Signal("cameraShake");
   constructor() {
     super();
     this.waveManager = new WaveSystem(this);
@@ -23,6 +23,10 @@ class MainScene extends Scene {
         decMoney(25);
         this.add(new TurretTower(e.worldPos));
       }
+    });
+
+    this.cameraShakeSignal.listen(() => {
+      this.camera.shake(5, 5, 0.75);
     });
   }
 
