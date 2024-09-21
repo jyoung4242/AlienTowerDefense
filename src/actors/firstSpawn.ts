@@ -40,7 +40,7 @@ export class firstSpawn extends Actor {
       collisionType: CollisionType.Passive,
     });
 
-    field.graphics.use(fieldShape);
+    //field.graphics.use(fieldShape);
     field.onCollisionStart = (self: Collider, other: Collider, side: Side, contact: CollisionContact) => {
       console.log(other.owner.name);
 
