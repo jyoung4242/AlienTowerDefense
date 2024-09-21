@@ -76,6 +76,18 @@ money-div {
   line-height: 50px;
 }
 
+wave-timer {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  display: block;
+  width: 100px;
+  height: 25px;
+  color: var(--current-foreground);
+  text-align: center;
+  line-height: 50px;
+}
+
 preWave-modal {
   position: fixed;
   top: 50%;

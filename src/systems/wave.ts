@@ -10,6 +10,7 @@ import {
   incWaveNum,
   resetUI,
   setBannerText,
+  setWaveTimer,
   showHud,
   showPreWaveModal,
   showWaveBanner,
@@ -98,6 +99,8 @@ class WaveInit extends ExState {
   }
 }
 class WaveActive extends ExState {
+  levelTimer = 60;
+  intervalHanlder: any = null;
   constructor(public scene: Scene, public fsm: ExFSM) {
     super("active", fsm);
   }
@@ -105,6 +108,18 @@ class WaveActive extends ExState {
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
     hideWaveBanner();
     this.scene.add(new firstEnemy());
+    this.intervalHanlder = setInterval(() => {
+      this.levelTimer--;
+      setWaveTimer(this.levelTimer);
+      if (this.levelTimer <= 0) {
+        clearInterval(this.intervalHanlder);
+        this.fsm.set("gameover");
+      }
+    }, 1000);
+  }
+
+  exit(_next: ExState | null, ...params: any): void | Promise<void> {
+    clearInterval(this.intervalHanlder);
   }
   update(...params: any): void | Promise<void> {
     const engine = this.scene.engine;

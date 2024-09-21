@@ -31,6 +31,7 @@ export class Ship extends Actor {
 
   onInitialize(engine: Engine): void {
     engine.currentScene.camera.strategy.lockToActor(this);
+    this.gameOverSignal.listen(() => this.kill());
   }
 
   onPreUpdate(engine: Engine, delta: number): void {

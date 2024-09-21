@@ -6,6 +6,7 @@ export const model = {
   score: 0,
   money: 100,
   waveNumber: 1,
+  waveTimer: 60,
   showHud: false,
   showWaveBanner: false,
   showWaveCompleteBanner: false,
@@ -38,6 +39,9 @@ export const template = `
         <money-div>
             Money: \${money}
         </money-div>
+        <wave-timer>
+            Time Left: \${waveTimer}
+        </wave-timer>
 
     </hud-layer>
     <preWave-modal \${===showPreWaveModal}>
@@ -120,4 +124,8 @@ export function resetUI() {
   model.waveNumber = 1;
 
   model.waveCompleteBannerText = "Wave Complete!!!";
+}
+
+export function setWaveTimer(time: number) {
+  model.waveTimer = time;
 }
