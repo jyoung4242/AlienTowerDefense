@@ -4,6 +4,7 @@ import { playerShip } from "../actors/ship";
 import { firstEnemy } from "../actors/firstEnemy";
 import { Signal } from "../lib/Signals";
 import {
+  hideHud,
   hideWaveBanner,
   hideWaveCompleteBanner,
   incMoney,
@@ -162,6 +163,7 @@ class WaveGameOver extends ExState {
     showWaveCompleteBanner();
     setTimeout(() => {
       hideWaveCompleteBanner();
+      hideHud();
       setBannerText("Wave Complete!!!!");
       this.fsm.set("idle");
     }, 2000);
