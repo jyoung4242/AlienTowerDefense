@@ -1,0 +1,8 @@
+name: Deploy
+ECHO is off.
+on:
+   push:
+   branches:
+     - main
+   workflow_dispatch:
+ECHO is off.
