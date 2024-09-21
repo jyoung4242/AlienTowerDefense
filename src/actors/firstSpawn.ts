@@ -42,11 +42,7 @@ export class firstSpawn extends Actor {
 
     //field.graphics.use(fieldShape);
     field.onCollisionStart = (self: Collider, other: Collider, side: Side, contact: CollisionContact) => {
-      console.log(other.owner.name);
-
       if (other.owner.name === "turret") {
-        console.log("turret detected");
-
         const nextPosition = this.pos
           .sub((other.owner as TurretTower).pos)
           .negate()
@@ -58,7 +54,6 @@ export class firstSpawn extends Actor {
 
     field.onCollisionEnd = (self: Collider, other: Collider, side: Side, contact: CollisionContact) => {
       if (other.owner.name === "turret") {
-        console.log("turret collision end");
         const nextPosition = this.pos.sub(new Vector(0, 0)).negate().normalize().scale(this.speed);
         this.vel = nextPosition;
       }

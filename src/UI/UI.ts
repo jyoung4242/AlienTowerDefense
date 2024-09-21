@@ -99,14 +99,10 @@ export function hideWaveBanner() {
 }
 
 export function showWaveCompleteBanner() {
-  console.log("showWaveCompleteBanner");
-
   model.showWaveCompleteBanner = true;
 }
 
 export function hideWaveCompleteBanner() {
-  console.log("hideWaveCompleteBanner");
-
   model.showWaveCompleteBanner = false;
 }
 

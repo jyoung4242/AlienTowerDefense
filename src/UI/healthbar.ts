@@ -25,8 +25,6 @@ export class HealthBar extends ScreenElement {
       this.percent = 100;
     }
 
-    console.log(this.percent, this.width);
-
     this.child.scale.x = this.percent / 100;
     this.child.scale.y = 1;
   }
