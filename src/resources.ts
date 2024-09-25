@@ -8,6 +8,12 @@ import turretImage from "./assets/turret-Sheet.png";
 import light1 from "./assets/light_01.png";
 import light2 from "./assets/light_02.png";
 import light3 from "./assets/light_03.png";
+import frameImage from "./assets/frame.png";
+import arrowImage from "./assets/arrow.png";
+import unitFrame from "./assets/unitframe.png";
+import unitFrameShip from "./assets/unitframeship.png";
+import sniperTurret from "./assets/sniperturret-Sheet.png";
+import star from "./assets/star.png";
 
 export const Resources = {
   shipImageResource: new ImageSource(shipImage),
@@ -17,6 +23,12 @@ export const Resources = {
   light1: new ImageSource(light1),
   light2: new ImageSource(light2),
   light3: new ImageSource(light3),
+  frame: new ImageSource(frameImage),
+  arrow: new ImageSource(arrowImage),
+  unitFrame: new ImageSource(unitFrame),
+  unitFrameShip: new ImageSource(unitFrameShip),
+  sniperTurret: new ImageSource(sniperTurret),
+  star: new ImageSource(star),
 };
 
 export const shipSpriteSheet = SpriteSheet.fromImageSource({
@@ -54,6 +66,16 @@ export const turretSpriteSheet = SpriteSheet.fromImageSource({
   grid: {
     rows: 1,
     columns: 6,
+    spriteWidth: 24,
+    spriteHeight: 24,
+  },
+});
+
+export const sniperTurretSpriteSheet = SpriteSheet.fromImageSource({
+  image: Resources.sniperTurret,
+  grid: {
+    rows: 1,
+    columns: 8,
     spriteWidth: 24,
     spriteHeight: 24,
   },

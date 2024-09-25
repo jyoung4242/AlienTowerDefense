@@ -17,6 +17,7 @@ import {
   showWaveBanner,
   showWaveCompleteBanner,
 } from "../UI/UI";
+import { myUIStore } from "../UI/store";
 
 export class WaveSystem {
   state = new ExFSM();
@@ -54,6 +55,10 @@ export class WaveSystem {
     this.level = 1;
     this.state.set("idle");
     showPreWaveModal();
+  }
+
+  getStorePos() {
+    return;
   }
 }
 
@@ -93,6 +98,7 @@ class WaveInit extends ExState {
     playerShip.reset();
     resetUI();
     this.scene.add(playerShip);
+    this.scene.add(myUIStore);
 
     showHud();
     showWaveBanner();

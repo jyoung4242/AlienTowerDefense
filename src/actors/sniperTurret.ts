@@ -1,32 +1,26 @@
 import { Actor, Circle, Collider, CollisionContact, CollisionType, Color, Engine, Entity, Side, Vector } from "excalibur";
-import {
-  turretIdleAnimation,
-  turretActiveGreenAnimationLeft,
-  turretActiveGreenAnimationRight,
-  turretActiveRedAnimationLeft,
-  turretActiveRedAnimationRight,
-} from "../animations/turrentAnimation";
+import { turretActivatingLeft, turretActivatingRight, turretIdleLeft, turretIdleRight } from "../animations/sniperAnimation";
 import { ExFSM, ExState } from "../lib/ExFSM";
-import { Blast } from "./blast";
 import { HealthBar } from "../UI/healthbar";
 import { Signal } from "../lib/Signals";
+import { Blast } from "./blast";
 
 const fieldShape = new Circle({
-  radius: 100,
+  radius: 250,
   color: Color.fromRGB(255, 255, 255, 0.1),
 });
 
-export class TurretTower extends Actor {
+export class SniperTurret extends Actor {
   animationStates = new ExFSM();
   targets: Entity[] = [];
-  fireRate = 100;
+  fireRate = 250;
   fireTik = 0;
   direction: "right" | "left" = "left";
-  hp = 50;
-  maxhp = 50;
+  hp = 30;
+  maxhp = 30;
   healthbar: HealthBar;
   gameOverSignal = new Signal("gameover");
-  cost = 25;
+  cost = 75;
 
   constructor(spawnPosition: Vector) {
     super({
@@ -38,14 +32,14 @@ export class TurretTower extends Actor {
       radius: 24,
     });
     this.scale = new Vector(2, 2);
-    this.animationStates.register(new IdleState(this), new OnlineState(this), new AlertState(this));
+    this.animationStates.register(new IdleState(this), new AlertState(this));
 
     // create child actor for 'detection field'
     const detectionField = new Actor({
       name: "field",
       pos: new Vector(0, 0),
       z: 0,
-      radius: 100,
+      radius: 250,
       collisionType: CollisionType.Passive,
     });
     detectionField.graphics.use(fieldShape);
@@ -76,37 +70,27 @@ export class TurretTower extends Actor {
 
     this.addChild(detectionField);
 
-    this.healthbar = new HealthBar(new Vector(24, 2), new Vector(-12, -20), 50);
+    this.healthbar = new HealthBar(new Vector(24, 2), new Vector(-12, -20), 30);
     this.addChild(this.healthbar);
   }
   onInitialize(engine: Engine): void {
     this.animationStates.set("idle");
-    setTimeout(() => this.animationStates.set("online"), 1000);
     this.gameOverSignal.listen(() => this.kill());
   }
 
   onPreUpdate(engine: Engine, delta: number): void {
     this.healthbar.setPercent((this.hp / this.maxhp) * 100);
-    let currentstate = this.animationStates.get();
-    if (currentstate.name == "idle") return;
-
-    if (this.targets.length > 0) {
-      this.animationStates.set("alert");
-    } else {
-      this.animationStates.set("online");
-    }
-    currentstate = this.animationStates.get();
-    if (currentstate.name == "online") return;
+    if (this.targets.length == 0) return;
 
     //target the zero index of targets
     const nextTarget = this.targets[0];
-
     //if target is left of me, set direction to left
     if ((nextTarget as Actor).pos.x < this.pos.x) {
       this.direction = "left";
     } else {
       this.direction = "right";
     }
+    this.animationStates.set("alert");
 
     this.fireTik++;
     if (this.fireTik > this.fireRate) {
@@ -124,53 +108,53 @@ export class TurretTower extends Actor {
 }
 
 class IdleState extends ExState {
-  constructor(public enemy: TurretTower) {
+  direction: "right" | "left" = "left";
+  constructor(public enemy: SniperTurret) {
     super("idle", enemy.animationStates);
   }
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
-    this.enemy.graphics.use(turretIdleAnimation);
-  }
-  exit(_next: ExState | null, ...params: any): void | Promise<void> {}
-  update(...params: any): void | Promise<void> {
-    this.enemy.graphics.use(turretIdleAnimation);
-  }
-}
-
-class OnlineState extends ExState {
-  direction: "right" | "left" = "left";
-  constructor(public enemy: TurretTower) {
-    super("online", enemy.animationStates);
-    this.direction = enemy.direction;
-  }
-  enter(_previous: ExState | null, ...params: any): void | Promise<void> {
-    this.enemy.graphics.use(turretActiveGreenAnimationLeft);
+    this.enemy.graphics.use(turretIdleLeft);
   }
   exit(_next: ExState | null, ...params: any): void | Promise<void> {}
   update(...params: any): void | Promise<void> {
     this.direction = this.enemy.direction;
     if (this.direction == "left") {
-      this.enemy.graphics.use(turretActiveGreenAnimationLeft);
+      this.enemy.graphics.use(turretIdleLeft);
     } else {
-      this.enemy.graphics.use(turretActiveGreenAnimationRight);
+      this.enemy.graphics.use(turretIdleRight);
     }
   }
 }
 
 class AlertState extends ExState {
+  animationstate: "active" | "done" = "active";
+
   direction: "right" | "left" = "left";
-  constructor(public enemy: TurretTower) {
+  constructor(public enemy: SniperTurret) {
     super("alert", enemy.animationStates);
   }
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
-    this.enemy.graphics.use(turretActiveRedAnimationLeft);
+    let animation;
+    if (this.direction == "left") {
+      animation = turretActivatingLeft;
+    } else {
+      animation = turretActivatingRight;
+    }
+    this.enemy.graphics.use(animation);
+    this.animationstate = "active";
+    animation.events.on("end", a => {
+      this.animationstate = "done";
+      console.log("ended");
+    });
   }
   exit(_next: ExState | null, ...params: any): void | Promise<void> {}
   update(...params: any): void | Promise<void> {
+    if (this.animationstate == "done") return;
     this.direction = this.enemy.direction;
     if (this.direction == "left") {
-      this.enemy.graphics.use(turretActiveRedAnimationLeft);
+      this.enemy.graphics.use(turretActivatingLeft);
     } else {
-      this.enemy.graphics.use(turretActiveRedAnimationRight);
+      this.enemy.graphics.use(turretActivatingRight);
     }
   }
 }

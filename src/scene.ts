@@ -1,8 +1,9 @@
-import { Camera, Engine, Scene } from "excalibur";
+import { Camera, Engine, Scene, SceneActivationContext } from "excalibur";
 import { WaveSystem } from "./systems/wave";
 import { TurretTower } from "./actors/turretTower";
 import { decMoney, getMoney } from "./UI/UI";
 import { Signal } from "./lib/Signals";
+import { myUIStore } from "./UI/store";
 
 class MainScene extends Scene {
   waveManager: WaveSystem;
@@ -18,6 +19,22 @@ class MainScene extends Scene {
 
     this.input.pointers.on("down", e => {
       if (this.waveManager.state.get().name == "idle") return;
+      //check if click is below store
+      let clickPos = e.worldPos;
+      let screenPos = e.screenPos;
+      // get store position
+      let uiPos = myUIStore.getArea();
+      console.log("click data", uiPos, clickPos, screenPos);
+
+      if (
+        e.screenPos.x > uiPos.pos.x &&
+        e.screenPos.x < uiPos.pos.x + uiPos.width &&
+        e.screenPos.y > uiPos.pos.y &&
+        e.screenPos.y < uiPos.pos.y + uiPos.height
+      ) {
+        console.log("clicked on store");
+        return;
+      }
 
       if (getMoney() >= 25) {
         decMoney(25);

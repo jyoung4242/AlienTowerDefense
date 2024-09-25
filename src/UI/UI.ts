@@ -20,30 +20,11 @@ export const model = {
 };
 export const template = `
 <style> 
-    hud-layer{
-        pointer-events: none;
-        position: fixed;
-        top: 0;
-        left:0;
-       display: block;
-       width: \${canvasWidth}px;
-       height: \${canvasHeight}px;
-    }
+    
 </style> 
 <div> 
     <canvas id='cnv'> </canvas> 
-    <hud-layer \${===showHud}>
-        <score-div>
-            Score: \${score}
-        </score-div>
-        <money-div>
-            Money: \${money}
-        </money-div>
-        <wave-timer>
-            Time Left: \${waveTimer}
-        </wave-timer>
-
-    </hud-layer>
+    
     <preWave-modal \${===showPreWaveModal}>
             <p>Insert initial modal text here.Insert initial modal text here.Insert initial modal text here.Insert initial modal text here.Insert initial modal text here.Insert initial modal text here.
             </p>
@@ -58,9 +39,7 @@ export function setUIDims(width: number, height: number): void {
   model.canvasHeight = height;
 }
 
-export function incScore(delta: number): void {
-  model.score += delta;
-}
+export function incScore(delta: number): void {}
 
 export function getScore(): number {
   return model.score;
@@ -86,13 +65,9 @@ export function getMoney(): number {
   return model.money;
 }
 
-export function incMoney(delta: number): void {
-  model.money += delta;
-}
+export function incMoney(delta: number): void {}
 
-export function decMoney(delta: number): void {
-  model.money -= delta;
-}
+export function decMoney(delta: number): void {}
 
 export function showWaveBanner() {
   model.showWaveBanner = true;
@@ -126,6 +101,4 @@ export function resetUI() {
   model.waveCompleteBannerText = "Wave Complete!!!";
 }
 
-export function setWaveTimer(time: number) {
-  model.waveTimer = time;
-}
+export function setWaveTimer(time: number) {}

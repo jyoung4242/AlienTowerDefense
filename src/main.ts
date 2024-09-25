@@ -1,9 +1,8 @@
 import "./style.css";
 import { UI } from "@peasy-lib/peasy-ui";
-import { Engine, DisplayMode } from "excalibur";
+import { Engine, DisplayMode, Color } from "excalibur";
 import { loader } from "./resources";
 import { model, template, setUIDims } from "./UI/UI";
-
 import { mainScene } from "./scene";
 import { worldToPagePixelRatio } from "./lib/pixelAdjustment";
 
@@ -19,10 +18,12 @@ const game = new Engine({
   displayMode: DisplayMode.FitScreenAndFill, // the display mode
   pixelArt: true,
   scenes: { mainScene },
+  backgroundColor: Color.fromHex("#2e2e2e"),
 });
 document.documentElement.style.setProperty("--ex-pixel-ratio", worldToPagePixelRatio(game).toString());
 
 setUIDims(game.screen.canvasWidth, game.screen.canvasHeight);
 
 await game.start(loader);
+
 game.goToScene("mainScene");

@@ -15,7 +15,7 @@ export class firstSpawn extends Actor {
   animationStates = new ExFSM();
   gameOverSignal = new Signal("gameover");
   cameraShakeSignal = new Signal("cameraShake");
-  speed: number = 65;
+  speed: number = 60;
   hp: number = 5;
   damage: number = 20;
   target: Ship | TurretTower | undefined;
