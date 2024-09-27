@@ -1,12 +1,12 @@
-import { Actor, Color, Engine, Vector } from "excalibur";
+import { Actor, Color, Engine, TileMap, Vector } from "excalibur";
 import { WaveSystem } from "../systems/wave";
 import { TurretTower } from "./turretTower";
 import { MainScene } from "../scene";
 import { Signal } from "../lib/Signals";
 import { UIStore } from "../UI/store";
-import { sniperTurretSpriteSheet } from "../resources";
+import { Resources } from "../resources";
 import { SniperTurret } from "./sniperTurret";
-import { playerShip, Ship } from "./ship";
+import { playerShip } from "./ship";
 
 export class PlayingField extends Actor {
   store: UIStore;
@@ -31,6 +31,22 @@ export class PlayingField extends Actor {
     });
     this.store = store;
     this.engine.currentScene.camera.strategy.lockToActor(this);
+
+    const tileswide = Math.ceil(screenArea.width / 256);
+    const tileshigh = Math.ceil(screenArea.height / 256);
+
+    const tmap = new TileMap({
+      tileWidth: 256,
+      tileHeight: 256,
+      columns: tileswide,
+      rows: tileshigh,
+      name: "tmap",
+    });
+    for (const tile of tmap.tiles) {
+      tile.addGraphic(Resources.background.toSprite());
+    }
+
+    this.addChild(tmap);
   }
 
   onInitialize(engine: Engine): void {

@@ -4,6 +4,7 @@ import { enemyIdleAnimation, enemyActiveAnimation } from "../animations/enemyAni
 import { firstSpawn } from "./firstSpawn";
 import { Signal } from "../lib/Signals";
 import { HealthBar } from "../UI/healthbar";
+import { sndPlugin } from "../main";
 
 export class firstEnemy extends Actor {
   healthBar: HealthBar;
@@ -52,6 +53,7 @@ export class firstEnemy extends Actor {
 
     if (this.spawnTiks > this.spawnTrigger) {
       this.spawnTiks = 0;
+      sndPlugin.playSound("spawn");
       const newSpawn = new firstSpawn(this.pos);
       engine.currentScene.add(newSpawn);
     }

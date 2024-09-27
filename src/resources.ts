@@ -14,6 +14,7 @@ import unitFrame from "./assets/unitframe.png";
 import unitFrameShip from "./assets/unitframeship.png";
 import sniperTurret from "./assets/sniperturret-Sheet.png";
 import star from "./assets/star.png";
+import background from "./assets/bkgnd.png";
 
 export const Resources = {
   shipImageResource: new ImageSource(shipImage),
@@ -29,6 +30,7 @@ export const Resources = {
   unitFrameShip: new ImageSource(unitFrameShip),
   sniperTurret: new ImageSource(sniperTurret),
   star: new ImageSource(star),
+  background: new ImageSource(background),
 };
 
 export const shipSpriteSheet = SpriteSheet.fromImageSource({

@@ -92,6 +92,7 @@ class UnitFrame extends Actor {
 }
 
 class WaveTimeRemaining extends Label {
+  gameoverSignal = new Signal("gameover");
   time = 60;
   running = false;
   callback = () => {
@@ -108,6 +109,10 @@ class WaveTimeRemaining extends Label {
       size: 36,
       color: Color.White,
       family: "Arial",
+    });
+
+    this.gameoverSignal.listen(() => {
+      this.time = 60;
     });
   }
 
@@ -162,6 +167,7 @@ class RepairShip extends Actor {
 
 class MoneyLabel extends Label {
   coin = 100;
+  gameoverSignal = new Signal("gameover");
   constructor(pos: Vector) {
     super({ name: "moneyLabel", x: pos.x, y: pos.y, width: 5, height: 50, z: 2, anchor: Vector.Zero });
     this.text = `Money: ${this.coin}`;
@@ -169,6 +175,9 @@ class MoneyLabel extends Label {
       size: 36,
       color: Color.White,
       family: "Arial",
+    });
+    this.gameoverSignal.listen(() => {
+      this.coin = 100;
     });
   }
 
@@ -188,6 +197,7 @@ class MoneyLabel extends Label {
 
 class ScoreLabel extends Label {
   score = 0;
+  gameoverSignal = new Signal("gameover");
   constructor(pos: Vector) {
     super({ name: "scoreLabel", x: pos.x, y: pos.y, width: 5, height: 50, z: 2, anchor: Vector.Zero });
     this.text = `Score: ${this.score}`;
@@ -195,6 +205,9 @@ class ScoreLabel extends Label {
       size: 36,
       color: Color.White,
       family: "Arial",
+    });
+    this.gameoverSignal.listen(() => {
+      this.score = 0;
     });
   }
 

@@ -4,6 +4,7 @@ import { tintShader } from "../shaders/tint";
 import { incScore } from "../UI/UI";
 import { Signal } from "../lib/Signals";
 import { UIStore } from "../UI/store";
+import { sndPlugin } from "../main";
 
 export class Blast extends Actor {
   speed = 250;
@@ -47,7 +48,7 @@ export class Blast extends Actor {
   onCollisionStart = (self: Collider, other: Collider, side: Side, contact: CollisionContact): void => {
     if (other.owner.name === "enemy" || other.owner.name === "spawn") {
       this.kill();
-
+      sndPlugin.playSound("enemyHit");
       //@ts-ignore
       if (other.owner.hp > 0) {
         //@ts-ignore

@@ -11,6 +11,7 @@ import { Blast } from "./blast";
 import { HealthBar } from "../UI/healthbar";
 import { Signal } from "../lib/Signals";
 import { UIStore } from "../UI/store";
+import { sndPlugin } from "../main";
 
 const fieldShape = new Circle({
   radius: 100,
@@ -122,6 +123,7 @@ export class TurretTower extends Actor {
 
   fire(startingPosition: Vector, target: Entity, engine: Engine) {
     if (target) {
+      sndPlugin.playSound("blast");
       engine.currentScene.add(new Blast(startingPosition, (target as Actor).pos, this.store));
     }
   }

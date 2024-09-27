@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@excaliburjs/plugin-jsfxr": "^0.29.4",
     "@peasy-lib/peasy-assets": "^0.2.6",
     "@peasy-lib/peasy-input": "^0.2.0",
     "@peasy-lib/peasy-ui": "^0.9.58",

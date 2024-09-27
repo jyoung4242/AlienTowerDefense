@@ -5,6 +5,7 @@ import { playerShip, Ship } from "./ship";
 import { gameover } from "../scene";
 import { TurretTower } from "./turretTower";
 import { Signal } from "../lib/Signals";
+import { sndPlugin } from "../main";
 
 const fieldShape = new Circle({
   radius: 200,
@@ -55,7 +56,7 @@ export class firstSpawn extends Actor {
 
     field.onCollisionEnd = (self: Collider, other: Collider, side: Side, contact: CollisionContact) => {
       if (other.owner.name === "turret") {
-        const nextPosition = this.pos.sub(new Vector(0, 0)).negate().normalize().scale(this.speed);
+        const nextPosition = this.pos.sub(playerShip.pos).negate().normalize().scale(this.speed);
         this.vel = nextPosition;
       }
     };
@@ -66,6 +67,7 @@ export class firstSpawn extends Actor {
   onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact): void {
     if (other.owner.name === "ship") {
       (other.owner as Ship).hp -= this.damage;
+      sndPlugin.playSound("shipExplosion");
       this.kill();
       this.cameraShakeSignal.send();
 
@@ -76,6 +78,7 @@ export class firstSpawn extends Actor {
     } else if (other.owner.name === "turret") {
       (other.owner as TurretTower).hp -= this.damage;
 
+      sndPlugin.playSound("turretexplosion");
       this.kill();
       if ((other.owner as TurretTower).hp <= 0) {
         other.owner.kill();
