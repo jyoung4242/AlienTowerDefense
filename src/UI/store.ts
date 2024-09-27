@@ -8,6 +8,7 @@ const shrunkSniper = sniperTurretSpriteSheet.getSprite(0, 0).clone();
 shrunkSniper.scale = new Vector(0.5, 0.5);
 
 class UnitFrame extends Actor {
+  costlabel: Label;
   availableUnits = [
     { name: "turret", cost: 25, image: shrunkTurret },
     { name: "sniper", cost: 50, image: shrunkSniper },
@@ -20,7 +21,7 @@ class UnitFrame extends Actor {
       members: [Resources.unitFrame.toSprite(), { graphic: this.availableUnits[this.unitIndex].image, offset: new Vector(6, 6) }],
     });
 
-    const costLabel = new Label({
+    this.costlabel = new Label({
       text: `Cost: 25`,
       pos: new Vector(3, 26),
       z: 2,
@@ -31,7 +32,7 @@ class UnitFrame extends Actor {
       }),
       scale: new Vector(0.3, 0.3),
     });
-    this.addChild(costLabel);
+    this.addChild(this.costlabel);
 
     class leftArrow extends Actor {
       constructor(public owner: UnitFrame) {
@@ -42,12 +43,10 @@ class UnitFrame extends Actor {
       }
       onInitialize(engine: Engine): void {
         this.on("pointerup", e => {
-          console.log("clicked");
-          this.owner.decIndex();
-        });
+          console.log("clicked left");
 
-        this.on("pointerdown", () => {
-          console.log("click down");
+          this.owner.decIndex();
+          e.cancel();
         });
       }
     }
@@ -62,7 +61,11 @@ class UnitFrame extends Actor {
       }
 
       onInitialize(engine: Engine): void {
-        this.on("pointerup", () => this.owner.incIndex());
+        this.on("pointerup", e => {
+          console.log("clicked right");
+          this.owner.incIndex();
+          e.cancel();
+        });
       }
     }
 
@@ -73,11 +76,17 @@ class UnitFrame extends Actor {
   incIndex() {
     this.unitIndex++;
     if (this.unitIndex > this.availableUnits.length - 1) this.unitIndex = 0;
+    //@ts-ignore
+    this.gGroup.members[1].graphic = this.availableUnits[this.unitIndex].image;
+    this.costlabel.text = `Cost: ${this.availableUnits[this.unitIndex].cost}`;
   }
 
   decIndex() {
     this.unitIndex--;
     if (this.unitIndex < 0) this.unitIndex = this.availableUnits.length - 1;
+    //@ts-ignore
+    this.gGroup.members[1].graphic = this.availableUnits[this.unitIndex].image;
+    this.costlabel.text = `Cost: ${this.availableUnits[this.unitIndex].cost}`;
   }
   onInitialize(engine: Engine): void {
     this.graphics.use(this.gGroup);
@@ -102,20 +111,17 @@ class WaveTimeRemaining extends Label {
       color: Color.White,
       family: "Arial",
     });
-
-    this.intervalHandler = setInterval(this.tikTime.bind(this), 1000);
-  }
-
-  tikTime() {
-    if (!this.running) return;
-    this.time--;
-    if (this.time == 0) this.callback();
   }
 
   setTime(newTime: number) {
     this.time = newTime;
   }
 
+  onPreUpdate(engine: Engine, delta: number): void {
+    this.text = `
+    Wave Time 
+    Remaining: ${this.time}`;
+  }
   enableWaveTimer() {
     this.running = true;
   }
@@ -158,6 +164,11 @@ class MoneyLabel extends Label {
 
   decrementCoin(amount: number) {
     this.coin -= amount;
+    if (this.coin < 0) this.coin = 0;
+  }
+
+  incrementCoin(amount: number) {
+    this.coin += amount;
   }
 
   update(engine: Engine, delta: number): void {
@@ -176,6 +187,10 @@ class ScoreLabel extends Label {
       family: "Arial",
     });
   }
+
+  update(engine: Engine, delta: number): void {
+    this.text = `Score: ${this.score}`;
+  }
 }
 
 class WaveEnemiesRemaining extends Label {
@@ -192,16 +207,31 @@ class WaveEnemiesRemaining extends Label {
     });
   }
 
-  update(engine: Engine, delta: number): void {}
+  update(engine: Engine, delta: number): void {
+    this.text = `
+    Enemies
+    Left: ${this.enemies}`;
+    this.font = new Font({
+      size: 36,
+      color: Color.White,
+      family: "Arial",
+    });
+  }
 }
 
 export class UIStore extends ScreenElement {
   unitFrame: UnitFrame | undefined = undefined;
+  moneyChild: MoneyLabel | undefined = undefined;
+  timer: WaveTimeRemaining | undefined = undefined;
+  score: ScoreLabel | undefined = undefined;
+  enemies: WaveEnemiesRemaining | undefined = undefined;
+  enemyUpdateTik = 0;
+  enemyUpdateLimit = 100;
   constructor(public dims: Vector, public position: Vector) {
     super({ name: "UIStore", x: position.x, y: position.y, width: dims.x, height: dims.y, z: 1, anchor: Vector.Zero });
   }
 
-  onInitialize(engine: Engine): void {
+  onInitialize = (engine: Engine): void => {
     const screenArea = engine.screen.contentArea;
     const calcWidth = screenArea.width * 0.15;
 
@@ -223,16 +253,21 @@ export class UIStore extends ScreenElement {
         stretchV: NineSliceStretch.TileFit,
       },
     };
+
     const graphic9slice = new NineSlice(config9slice);
     this.graphics.use(graphic9slice);
     this.unitFrame = new UnitFrame(new Vector(calcWidth / 2 - 80, 10));
     this.addChild(this.unitFrame);
-    this.addChild(new WaveTimeRemaining(new Vector(calcWidth / 4 - 80, 400)));
+    this.timer = new WaveTimeRemaining(new Vector(calcWidth / 4 - 80, 400));
+    this.addChild(this.timer);
     this.addChild(new RepairShip(new Vector(calcWidth / 2 - 80, 220)));
-    this.addChild(new MoneyLabel(new Vector(calcWidth / 2 - 105, 550)));
-    this.addChild(new ScoreLabel(new Vector(calcWidth / 2 - 80, 615)));
-    this.addChild(new WaveEnemiesRemaining(new Vector(calcWidth / 3 - 80, 670)));
-  }
+    this.moneyChild = new MoneyLabel(new Vector(calcWidth / 2 - 105, 550));
+    this.addChild(this.moneyChild);
+    this.score = new ScoreLabel(new Vector(calcWidth / 2 - 80, 615));
+    this.addChild(this.score);
+    this.enemies = new WaveEnemiesRemaining(new Vector(calcWidth / 3 - 80, 670));
+    this.addChild(this.enemies);
+  };
 
   getArea() {
     return {
@@ -242,10 +277,50 @@ export class UIStore extends ScreenElement {
     };
   }
 
-  getCurrentTurret(): string {
+  getCurrentTurret(): any {
     if (!this.unitFrame) return "none";
-    return this.unitFrame.availableUnits[this.unitFrame.unitIndex].name;
+    const currentTurret = this.unitFrame.availableUnits[this.unitFrame.unitIndex];
+    return currentTurret;
+  }
+
+  setWaveTimer(newval: number) {
+    if (!this.timer) return;
+    this.timer;
+  }
+
+  getMoney() {
+    return this.moneyChild?.coin;
+  }
+
+  decMoney(delta: number) {
+    if (!this.moneyChild) return;
+    this.moneyChild.decrementCoin(delta);
+  }
+
+  incMoney(delta: number) {
+    if (!this.moneyChild) return;
+    this.moneyChild.incrementCoin(delta);
+  }
+
+  incScore(delta: number) {
+    if (!this.score) return;
+    this.score.score += delta;
+  }
+
+  setEnemies(num: number) {
+    if (!this.enemies) return;
+    this.enemies!.enemies = num;
+  }
+
+  onPreUpdate(engine: Engine, delta: number): void {
+    this.enemyUpdateTik++;
+    if (this.enemyUpdateTik >= this.enemyUpdateLimit) {
+      this.enemyUpdateTik = 0;
+      const enemies = engine.currentScene.entities.filter(e => {
+        return e.name === "spawn" || e.name === "enemy";
+      });
+      const numEnemies = enemies.length;
+      this.setEnemies(numEnemies);
+    }
   }
 }
-
-export const myUIStore = new UIStore(new Vector(200, 500), new Vector(0, 0));

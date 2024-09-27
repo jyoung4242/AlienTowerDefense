@@ -3,6 +3,7 @@ import { blastAnimation } from "../animations/blastAnimation";
 import { tintShader } from "../shaders/tint";
 import { incScore } from "../UI/UI";
 import { Signal } from "../lib/Signals";
+import { UIStore } from "../UI/store";
 
 export class Blast extends Actor {
   speed = 250;
@@ -10,7 +11,7 @@ export class Blast extends Actor {
   blastMaterial: Material | undefined;
   gameOverSignal = new Signal("gameover");
 
-  constructor(public startingPosition: Vector, public targetPosition: Vector) {
+  constructor(public startingPosition: Vector, public targetPosition: Vector, public store: UIStore) {
     super({
       name: "blast",
       radius: 8,
@@ -43,7 +44,7 @@ export class Blast extends Actor {
     this.graphics.material = this.blastMaterial;
   }
 
-  onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact): void {
+  onCollisionStart = (self: Collider, other: Collider, side: Side, contact: CollisionContact): void => {
     if (other.owner.name === "enemy" || other.owner.name === "spawn") {
       this.kill();
 
@@ -54,13 +55,15 @@ export class Blast extends Actor {
         //@ts-ignore
         if (other.owner.hp <= 0) {
           other.owner.kill();
-          incScore(5);
+          //incScore(5);
+          this.store.incScore(5);
         } else {
           incScore(1);
+          this.store.incScore(1);
         }
       }
     } else if (other.owner.name === "ship") {
       this.kill();
     }
-  }
+  };
 }

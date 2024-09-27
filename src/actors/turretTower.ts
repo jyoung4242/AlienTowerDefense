@@ -10,10 +10,11 @@ import { ExFSM, ExState } from "../lib/ExFSM";
 import { Blast } from "./blast";
 import { HealthBar } from "../UI/healthbar";
 import { Signal } from "../lib/Signals";
+import { UIStore } from "../UI/store";
 
 const fieldShape = new Circle({
   radius: 100,
-  color: Color.fromRGB(255, 255, 255, 0.1),
+  color: Color.fromRGB(255, 255, 255, 0.05),
 });
 
 export class TurretTower extends Actor {
@@ -28,17 +29,18 @@ export class TurretTower extends Actor {
   gameOverSignal = new Signal("gameover");
   cost = 25;
 
-  constructor(spawnPosition: Vector) {
+  constructor(spawnPosition: Vector, public store: UIStore) {
     super({
       name: "turret",
       x: spawnPosition.x,
       y: spawnPosition.y,
       z: 0,
       collisionType: CollisionType.Passive,
-      radius: 24,
+      radius: 12,
     });
     this.scale = new Vector(2, 2);
     this.animationStates.register(new IdleState(this), new OnlineState(this), new AlertState(this));
+    console.log("new turret");
 
     // create child actor for 'detection field'
     const detectionField = new Actor({
@@ -56,9 +58,12 @@ export class TurretTower extends Actor {
         other.owner.name === "turret" ||
         other.owner.name === "field" ||
         other.owner.name === "UIStore" ||
-        other.owner.name === "unitFrame"
+        other.owner.name === "unitFrame" ||
+        other.owner.name === "playingField"
       )
         return;
+      console.log(other.owner);
+
       this.targets.push(other.owner);
     };
     detectionField.onCollisionEnd = (self: Collider, other: Collider, side: Side, contact: CollisionContact) => {
@@ -68,7 +73,8 @@ export class TurretTower extends Actor {
         other.owner.name === "turret" ||
         other.owner.name === "field" ||
         other.owner.name === "UIStore" ||
-        other.owner.name === "unitFrame"
+        other.owner.name === "unitFrame" ||
+        other.owner.name === "playingField"
       )
         return;
       this.targets = this.targets.filter(t => t !== other.owner);
@@ -118,7 +124,7 @@ export class TurretTower extends Actor {
 
   fire(startingPosition: Vector, target: Entity, engine: Engine) {
     if (target) {
-      engine.currentScene.add(new Blast(startingPosition, (target as Actor).pos));
+      engine.currentScene.add(new Blast(startingPosition, (target as Actor).pos, this.store));
     }
   }
 }

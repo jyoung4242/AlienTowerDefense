@@ -1,4 +1,6 @@
-import { startWave } from "../scene";
+import { Signal } from "../lib/Signals";
+
+const startWaveSignal = new Signal("startwave");
 
 export const model = {
   canvasWidth: 0,
@@ -15,7 +17,7 @@ export const model = {
   preWaveButtonHandler: () => {
     model.showPreWaveModal = false;
     model.showHud = true;
-    startWave();
+    startWaveSignal.send();
   },
 };
 export const template = `

@@ -1,67 +1,63 @@
-import { Camera, Engine, Scene, SceneActivationContext } from "excalibur";
+import { Camera, Engine, Scene, SceneActivationContext, Vector } from "excalibur";
 import { WaveSystem } from "./systems/wave";
 import { TurretTower } from "./actors/turretTower";
 import { decMoney, getMoney } from "./UI/UI";
 import { Signal } from "./lib/Signals";
-import { myUIStore } from "./UI/store";
+import { PlayingField } from "./actors/playingField";
+import { UIStore } from "./UI/store";
 
-class MainScene extends Scene {
+export class MainScene extends Scene {
+  store: UIStore | undefined;
   waveManager: WaveSystem;
   cameraShakeSignal = new Signal("cameraShake");
   constructor() {
     super();
+    console.log("main scene");
     this.waveManager = new WaveSystem(this);
     this.waveManager.initialize();
   }
 
+  getState() {
+    return this.waveManager.state.get();
+  }
+
   onInitialize(engine: Engine): void {
-    this.waveManager.reset();
-
-    this.input.pointers.on("down", e => {
-      if (this.waveManager.state.get().name == "idle") return;
-      //check if click is below store
-      let clickPos = e.worldPos;
-      let screenPos = e.screenPos;
-      // get store position
-      let uiPos = myUIStore.getArea();
-      console.log("click data", uiPos, clickPos, screenPos);
-
-      if (
-        e.screenPos.x > uiPos.pos.x &&
-        e.screenPos.x < uiPos.pos.x + uiPos.width &&
-        e.screenPos.y > uiPos.pos.y &&
-        e.screenPos.y < uiPos.pos.y + uiPos.height
-      ) {
-        console.log("clicked on store");
-        return;
-      }
-
-      if (getMoney() >= 25) {
-        decMoney(25);
-        this.add(new TurretTower(e.worldPos));
-      }
-    });
-
+    let screenDims = engine.screen.contentArea;
     this.cameraShakeSignal.listen(() => {
       this.camera.shake(5, 5, 0.75);
     });
+
+    let screenArea = engine.screen.contentArea;
+    let uiScreenDims = new Vector(screenArea.width * 0.15, screenArea.height);
+    this.store = new UIStore(uiScreenDims, new Vector(0, 0));
+    let playingField = new PlayingField(engine, this.store);
+    this.add(playingField);
+    this.waveManager.setPlayfield(playingField, this.store);
+    this.add(this.store);
+    this.waveManager.reset();
   }
 
   onPreUpdate(engine: Engine, delta: number): void {
     this.waveManager.update(engine);
   }
 
+  addTower(e: any) {
+    if (!this.store) return;
+    this.add(new TurretTower(e.worldPos, this.store));
+  }
+
   gameover() {
     this.waveManager.gameover();
+  }
+
+  startwave() {
+    this.waveManager.startWave();
   }
 }
 
 export const mainScene = new MainScene();
 
-export function startWave() {
-  mainScene.waveManager.startWave();
-}
-
-export function gameover() {
-  mainScene.waveManager.gameover();
-}
+export const gameover = () => {
+  console.trace("game over");
+  mainScene.gameover();
+};

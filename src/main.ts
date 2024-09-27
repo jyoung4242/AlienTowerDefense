@@ -25,5 +25,4 @@ document.documentElement.style.setProperty("--ex-pixel-ratio", worldToPagePixelR
 setUIDims(game.screen.canvasWidth, game.screen.canvasHeight);
 
 await game.start(loader);
-
 game.goToScene("mainScene");

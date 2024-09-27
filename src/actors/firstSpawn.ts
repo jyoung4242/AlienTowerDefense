@@ -84,7 +84,7 @@ export class firstSpawn extends Actor {
   }
 
   onInitialize(engine: Engine): void {
-    const nextPosition = this.pos.sub(new Vector(0, 0)).negate().normalize().scale(this.speed);
+    const nextPosition = this.pos.sub(playerShip.pos).negate().normalize().scale(this.speed);
     this.vel = nextPosition;
     this.gameOverSignal.listen(() => this.kill());
   }

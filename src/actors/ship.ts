@@ -30,13 +30,22 @@ export class Ship extends Actor {
   onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact): void {}
 
   onInitialize(engine: Engine): void {
-    engine.currentScene.camera.strategy.lockToActor(this);
+    //engine.currentScene.camera.strategy.lockToActor(this);
     this.gameOverSignal.listen(() => this.kill());
   }
 
   onPreUpdate(engine: Engine, delta: number): void {
     this.healthbar.setPercent((this.hp / this.maxHP) * 100);
   }
+
+  setPos(pos: Vector) {
+    this.pos = pos;
+  }
+
+  getPos() {
+    return this.pos;
+  }
+
   reset() {
     this.hp = 100;
     this.healthbar.setPercent((this.hp / this.maxHP) * 100);
