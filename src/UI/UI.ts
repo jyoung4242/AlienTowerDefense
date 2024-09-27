@@ -41,8 +41,6 @@ export function setUIDims(width: number, height: number): void {
   model.canvasHeight = height;
 }
 
-export function incScore(delta: number): void {}
-
 export function getScore(): number {
   return model.score;
 }

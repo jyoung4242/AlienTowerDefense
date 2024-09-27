@@ -1,7 +1,6 @@
 import { Actor, Collider, CollisionContact, CollisionType, Engine, Graphic, Material, Side, Vector } from "excalibur";
 import { blastAnimation } from "../animations/blastAnimation";
 import { tintShader } from "../shaders/tint";
-import { incScore } from "../UI/UI";
 import { Signal } from "../lib/Signals";
 import { UIStore } from "../UI/store";
 import { sndPlugin } from "../main";
@@ -59,7 +58,6 @@ export class Blast extends Actor {
           //incScore(5);
           this.store.incScore(5);
         } else {
-          incScore(1);
           this.store.incScore(1);
         }
       }
