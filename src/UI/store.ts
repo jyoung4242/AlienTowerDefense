@@ -1,6 +1,7 @@
 import { Actor, Color, Engine, Font, GraphicsGroup, Label, ScreenElement, Sprite, Vector } from "excalibur";
 import { NineSlice, NineSliceConfig, NineSliceStretch } from "./9slice";
 import { Resources, sniperTurretSpriteSheet, turretSpriteSheet } from "../resources";
+import { Signal } from "../lib/Signals";
 
 const shrunkTurret = turretSpriteSheet.getSprite(0, 0).clone();
 shrunkTurret.scale = new Vector(0.5, 0.5);
@@ -43,8 +44,6 @@ class UnitFrame extends Actor {
       }
       onInitialize(engine: Engine): void {
         this.on("pointerup", e => {
-          console.log("clicked left");
-
           this.owner.decIndex();
           e.cancel();
         });
@@ -62,7 +61,6 @@ class UnitFrame extends Actor {
 
       onInitialize(engine: Engine): void {
         this.on("pointerup", e => {
-          console.log("clicked right");
           this.owner.incIndex();
           e.cancel();
         });
@@ -132,7 +130,8 @@ class WaveTimeRemaining extends Label {
 }
 
 class RepairShip extends Actor {
-  constructor(pos: Vector) {
+  repairShipSignal: Signal = new Signal("repairShip");
+  constructor(pos: Vector, public store: UIStore) {
     super({ name: "repairShip", x: pos.x, y: pos.y, width: 16, height: 32, z: 1, scale: new Vector(6, 6), anchor: Vector.Zero });
     this.graphics.use(Resources.unitFrameShip.toSprite());
     const costLabel = new Label({
@@ -147,6 +146,17 @@ class RepairShip extends Actor {
       scale: new Vector(0.3, 0.3),
     });
     this.addChild(costLabel);
+  }
+  onInitialize(engine: Engine): void {
+    this.on("pointerup", e => {
+      const currentFunds = this.store.getMoney();
+      if (currentFunds >= 100) {
+        // repair ship
+        this.repairShipSignal.send();
+        this.store.decMoney(100);
+      }
+      e.cancel();
+    });
   }
 }
 
@@ -260,7 +270,7 @@ export class UIStore extends ScreenElement {
     this.addChild(this.unitFrame);
     this.timer = new WaveTimeRemaining(new Vector(calcWidth / 4 - 80, 400));
     this.addChild(this.timer);
-    this.addChild(new RepairShip(new Vector(calcWidth / 2 - 80, 220)));
+    this.addChild(new RepairShip(new Vector(calcWidth / 2 - 80, 220), this));
     this.moneyChild = new MoneyLabel(new Vector(calcWidth / 2 - 105, 550));
     this.addChild(this.moneyChild);
     this.score = new ScoreLabel(new Vector(calcWidth / 2 - 80, 615));
@@ -289,6 +299,7 @@ export class UIStore extends ScreenElement {
   }
 
   getMoney() {
+    if (!this.moneyChild) return 0;
     return this.moneyChild?.coin;
   }
 

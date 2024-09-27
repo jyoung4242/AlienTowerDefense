@@ -40,7 +40,6 @@ export class TurretTower extends Actor {
     });
     this.scale = new Vector(2, 2);
     this.animationStates.register(new IdleState(this), new OnlineState(this), new AlertState(this));
-    console.log("new turret");
 
     // create child actor for 'detection field'
     const detectionField = new Actor({
@@ -62,7 +61,6 @@ export class TurretTower extends Actor {
         other.owner.name === "playingField"
       )
         return;
-      console.log(other.owner);
 
       this.targets.push(other.owner);
     };

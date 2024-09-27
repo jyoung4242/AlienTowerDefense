@@ -5,14 +5,17 @@ import { decMoney, getMoney } from "./UI/UI";
 import { Signal } from "./lib/Signals";
 import { PlayingField } from "./actors/playingField";
 import { UIStore } from "./UI/store";
+import { StartingModal } from "./UI/startingModal";
 
 export class MainScene extends Scene {
   store: UIStore | undefined;
+  modal: StartingModal | undefined;
   waveManager: WaveSystem;
   cameraShakeSignal = new Signal("cameraShake");
+  startwaveSignal = new Signal("startwave");
+
   constructor() {
     super();
-    console.log("main scene");
     this.waveManager = new WaveSystem(this);
     this.waveManager.initialize();
   }
@@ -27,12 +30,16 @@ export class MainScene extends Scene {
       this.camera.shake(5, 5, 0.75);
     });
 
+    this.startwaveSignal.listen(() => {
+      this.closeModal();
+    });
+
     let screenArea = engine.screen.contentArea;
     let uiScreenDims = new Vector(screenArea.width * 0.15, screenArea.height);
     this.store = new UIStore(uiScreenDims, new Vector(0, 0));
     let playingField = new PlayingField(engine, this.store);
     this.add(playingField);
-    this.waveManager.setPlayfield(playingField, this.store);
+    this.waveManager.setPlayfield(playingField, this.store, engine);
     this.add(this.store);
     this.waveManager.reset();
   }
@@ -45,6 +52,22 @@ export class MainScene extends Scene {
     if (!this.store) return;
     this.add(new TurretTower(e.worldPos, this.store));
   }
+
+  showModal = (engine?: Engine) => {
+    console.trace("creating modal");
+
+    if (!engine) this.modal = new StartingModal(this.engine);
+    else this.modal = new StartingModal(engine);
+    this.add(this.modal);
+  };
+
+  closeModal = () => {
+    if (!this.modal) return;
+    console.log("removing");
+
+    this.remove(this.modal);
+    this.modal = undefined;
+  };
 
   gameover() {
     this.waveManager.gameover();

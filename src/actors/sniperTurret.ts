@@ -144,7 +144,6 @@ class AlertState extends ExState {
     this.animationstate = "active";
     animation.events.on("end", a => {
       this.animationstate = "done";
-      console.log("ended");
     });
   }
   exit(_next: ExState | null, ...params: any): void | Promise<void> {}

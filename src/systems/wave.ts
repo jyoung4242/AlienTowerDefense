@@ -20,6 +20,7 @@ import {
 import { UIStore } from "../UI/store";
 import { PlayingField } from "../actors/playingField";
 import { MainScene } from "../scene";
+import { StartingModal } from "../UI/startingModal";
 
 export class WaveSystem {
   store: UIStore | undefined = undefined;
@@ -27,6 +28,7 @@ export class WaveSystem {
   playingField: PlayingField | undefined = undefined;
   state = new ExFSM();
   level = 1;
+  engine: Engine | undefined = undefined;
 
   constructor(public scene: Scene) {}
 
@@ -41,14 +43,13 @@ export class WaveSystem {
     );
 
     this.startwaveSignal.listen(this.startWave);
-    console.log(this.state);
-
-    this.state.set("idle");
   }
 
-  setPlayfield(instance: PlayingField, store?: UIStore) {
+  setPlayfield(instance: PlayingField, store?: UIStore, engine?: Engine) {
     this.playingField = instance;
     this.store = store;
+    this.engine = engine;
+    this.state.set("idle");
   }
 
   startWave = () => {
@@ -84,10 +85,11 @@ class WaveIdle extends ExState {
     super("idle", fsm);
   }
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
-    if (this.firsttime) {
-      this.firsttime = false;
-      return;
-    } else showPreWaveModal();
+    console.log(this.scene);
+    const engine = (this.scene as MainScene).waveManager.engine;
+    console.log(engine);
+
+    (this.scene as MainScene).showModal(engine);
   }
 }
 

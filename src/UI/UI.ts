@@ -48,19 +48,19 @@ export function getScore(): number {
 }
 
 export function showHud() {
-  model.showHud = true;
+  //model.showHud = true;
 }
 
 export function hideHud() {
-  model.showHud = false;
+  //model.showHud = false;
 }
 
 export function showPreWaveModal() {
-  model.showPreWaveModal = true;
+  //model.showPreWaveModal = true;
 }
 
 export function hidePreWaveModal() {
-  model.showPreWaveModal = false;
+  //model.showPreWaveModal = false;
 }
 
 export function getMoney(): number {

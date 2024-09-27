@@ -6,6 +6,7 @@ import { Signal } from "../lib/Signals";
 
 export class Ship extends Actor {
   gameOverSignal = new Signal("gameover");
+  repairShip = new Signal("repairShip");
   healthbar: HealthBar;
   hp = 100;
   maxHP = 100;
@@ -32,6 +33,7 @@ export class Ship extends Actor {
   onInitialize(engine: Engine): void {
     //engine.currentScene.camera.strategy.lockToActor(this);
     this.gameOverSignal.listen(() => this.kill());
+    this.repairShip.listen(() => (this.hp = this.maxHP));
   }
 
   onPreUpdate(engine: Engine, delta: number): void {
