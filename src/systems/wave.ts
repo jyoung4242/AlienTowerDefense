@@ -132,7 +132,12 @@ class WaveActive extends ExState {
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
     hideWaveBanner();
     this.levelTimer = 60;
-    this.scene.add(new firstEnemy(playerShip.getPos(), this.scene.engine.screen.contentArea.height));
+    for (let i = 0; i < (this.scene as MainScene).waveManager.level; i++) {
+      this.scene.add(
+        new firstEnemy(playerShip.getPos(), this.scene.engine.screen.contentArea.height, (this.scene as MainScene).waveManager.level)
+      );
+    }
+
     this.intervalHanlder = setInterval(() => {
       this.levelTimer--;
       (this.scene as MainScene).waveManager.store!.timer!.setTime(this.levelTimer);
@@ -167,6 +172,7 @@ class WaveCleanup extends ExState {
     setBannerText("Wave Complete!!!!");
     showWaveCompleteBanner();
     incWaveNum();
+    (this.scene as MainScene).waveManager.store!.incScore(25);
     (this.scene as MainScene).waveManager.store!.incMoney(100);
     setTimeout(() => {
       hideWaveCompleteBanner();

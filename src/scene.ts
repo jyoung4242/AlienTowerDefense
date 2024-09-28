@@ -54,8 +54,6 @@ export class MainScene extends Scene {
   }
 
   showModal = (engine?: Engine) => {
-    console.trace("creating modal");
-
     if (!engine) this.modal = new StartingModal(this.engine);
     else this.modal = new StartingModal(engine);
     this.add(this.modal);
@@ -63,7 +61,6 @@ export class MainScene extends Scene {
 
   closeModal = () => {
     if (!this.modal) return;
-    console.log("removing");
 
     this.remove(this.modal);
     this.modal = undefined;

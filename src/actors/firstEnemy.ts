@@ -20,12 +20,15 @@ export class firstEnemy extends Actor {
   spawnTiks = 0;
   gameOverSignal = new Signal("gameover");
 
-  constructor(targetPos: Vector, public screenHeight: number) {
+  constructor(targetPos: Vector, public screenHeight: number, public level?: number) {
+    const angle = Math.random() * 360;
+
     super({
       name: "enemy",
       radius: 12,
       pos: new Vector(targetPos.x + 800, targetPos.y),
     });
+    this.currentAngle = angle;
     this.anchorPoint = targetPos;
     this.animationStates.register(new idleState(this), new activeState(this));
     this.animationStates.set("active");
@@ -33,8 +36,23 @@ export class firstEnemy extends Actor {
     this.healthBar = new HealthBar(new Vector(25, 2), new Vector(-12.5, -15), 10);
     this.addChild(this.healthBar);
     console.log(this.screenHeight);
+    let coinflip = Math.random() * 100;
+    if (coinflip > 50) {
+      this.direction = "CCW";
+    } else this.direction = "CW";
 
-    this.distanceToCenter = this.screenHeight / 2 - 50;
+    this.angVelocity = Math.random() * 0.002 + 0.0005;
+    console.log("velocity", this.angVelocity);
+
+    if (this.level) {
+      this.spawnTrigger = 250 - this.level * 2.5;
+      console.log("spawnlimit", this.spawnTrigger);
+    }
+
+    this.distanceToCenter = this.screenHeight / 2 - Math.random() * 60;
+    this.pos.x = this.distanceToCenter * Math.cos(angleToRads(angle)) + targetPos.x;
+    this.pos.y = this.distanceToCenter * Math.sin(angleToRads(angle)) + targetPos.y;
+    console.log(this.pos);
   }
 
   onInitialize(engine: Engine): void {
@@ -89,4 +107,8 @@ class activeState extends ExState {
   update(...params: any): void | Promise<void> {
     this.enemy.graphics.use(enemyActiveAnimation);
   }
+}
+
+function angleToRads(angle: number) {
+  return angle * (Math.PI / 180);
 }
