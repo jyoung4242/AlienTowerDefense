@@ -1,13 +1,13 @@
 import { Actor, Collider, CollisionContact, CollisionType, Engine, Graphic, Material, Side, Vector } from "excalibur";
 import { blastAnimation } from "../animations/blastAnimation";
-import { tintShader } from "../shaders/tint";
+import { tintShader } from "../shaders/tint blue";
 import { Signal } from "../lib/Signals";
 import { UIStore } from "../UI/store";
 import { sndPlugin } from "../main";
 
 export class Blast extends Actor {
-  speed = 250;
-  damage = 2;
+  speed = 400;
+  damage = 5;
   blastMaterial: Material | undefined;
   gameOverSignal = new Signal("gameover");
 

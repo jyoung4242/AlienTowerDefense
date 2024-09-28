@@ -21,7 +21,7 @@ const fieldShape = new Circle({
 export class TurretTower extends Actor {
   animationStates = new ExFSM();
   targets: Entity[] = [];
-  fireRate = 100;
+  fireRate = 75;
   fireTik = 0;
   direction: "right" | "left" = "left";
   hp = 50;
@@ -52,31 +52,10 @@ export class TurretTower extends Actor {
     });
     detectionField.graphics.use(fieldShape);
     detectionField.onCollisionStart = (self: Collider, other: Collider, side: Side, contact: CollisionContact) => {
-      if (
-        other.owner.name === "ship" ||
-        other.owner.name === "blast" ||
-        other.owner.name === "turret" ||
-        other.owner.name === "field" ||
-        other.owner.name === "UIStore" ||
-        other.owner.name === "unitFrame" ||
-        other.owner.name === "playingField"
-      )
-        return;
-
-      this.targets.push(other.owner);
+      if (other.owner.name === "enemy" || other.owner.name === "spawn") this.targets.push(other.owner);
     };
     detectionField.onCollisionEnd = (self: Collider, other: Collider, side: Side, contact: CollisionContact) => {
-      if (
-        other.owner.name === "ship" ||
-        other.owner.name === "blast" ||
-        other.owner.name === "turret" ||
-        other.owner.name === "field" ||
-        other.owner.name === "UIStore" ||
-        other.owner.name === "unitFrame" ||
-        other.owner.name === "playingField"
-      )
-        return;
-      this.targets = this.targets.filter(t => t !== other.owner);
+      if (other.owner.name === "enemy" || other.owner.name === "spawn") this.targets = this.targets.filter(t => t !== other.owner);
     };
 
     this.addChild(detectionField);

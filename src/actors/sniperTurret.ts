@@ -3,7 +3,7 @@ import { turretActivatingLeft, turretActivatingRight, turretIdleLeft, turretIdle
 import { ExFSM, ExState } from "../lib/ExFSM";
 import { HealthBar } from "../UI/healthbar";
 import { Signal } from "../lib/Signals";
-import { Blast } from "./blast";
+import { Blast } from "./blast blue";
 import { UIStore } from "../UI/store";
 
 const fieldShape = new Circle({
@@ -14,7 +14,7 @@ const fieldShape = new Circle({
 export class SniperTurret extends Actor {
   animationStates = new ExFSM();
   targets: Entity[] = [];
-  fireRate = 250;
+  fireRate = 200;
   fireTik = 0;
   direction: "right" | "left" = "left";
   hp = 30;
@@ -45,30 +45,10 @@ export class SniperTurret extends Actor {
     });
     detectionField.graphics.use(fieldShape);
     detectionField.onCollisionStart = (self: Collider, other: Collider, side: Side, contact: CollisionContact) => {
-      if (
-        other.owner.name === "ship" ||
-        other.owner.name === "blast" ||
-        other.owner.name === "turret" ||
-        other.owner.name === "field" ||
-        other.owner.name === "UIStore" ||
-        other.owner.name === "unitFrame" ||
-        other.owner.name === "playingField"
-      )
-        return;
-      this.targets.push(other.owner);
+      if (other.owner.name === "enemy" || other.owner.name === "spawn") this.targets.push(other.owner);
     };
     detectionField.onCollisionEnd = (self: Collider, other: Collider, side: Side, contact: CollisionContact) => {
-      if (
-        other.owner.name === "ship" ||
-        other.owner.name === "blast" ||
-        other.owner.name === "turret" ||
-        other.owner.name === "field" ||
-        other.owner.name === "UIStore" ||
-        other.owner.name === "unitFrame" ||
-        other.owner.name === "playingField"
-      )
-        return;
-      this.targets = this.targets.filter(t => t !== other.owner);
+      if (other.owner.name === "enemy" || other.owner.name === "spawn") this.targets = this.targets.filter(t => t !== other.owner);
     };
 
     this.addChild(detectionField);
@@ -83,7 +63,10 @@ export class SniperTurret extends Actor {
 
   onPreUpdate(engine: Engine, delta: number): void {
     this.healthbar.setPercent((this.hp / this.maxhp) * 100);
-    if (this.targets.length == 0) return;
+    if (this.targets.length == 0) {
+      this.animationStates.set("idle");
+      return;
+    }
 
     //target the zero index of targets
     const nextTarget = this.targets[0];
@@ -105,7 +88,10 @@ export class SniperTurret extends Actor {
 
   fire(startingPosition: Vector, target: Entity, engine: Engine) {
     if (target) {
-      engine.currentScene.add(new Blast(startingPosition, (target as Actor).pos, this.store));
+      console.log(target);
+
+      const predictedPosition = getPredictedPosition((target as Actor).pos, (target as Actor).vel, this.pos, 200);
+      engine.currentScene.add(new Blast(startingPosition, predictedPosition as Vector, this.store));
     }
   }
 }
@@ -159,4 +145,21 @@ class AlertState extends ExState {
       this.enemy.graphics.use(turretActivatingRight);
     }
   }
+}
+
+function getPredictedPosition(enemyPos: Vector, enemyVel: Vector, towerPos: Vector, laserSpeed: number): Vector | null {
+  // Get the distance between the tower and the enemy
+  const distance = towerPos.distance(enemyPos);
+
+  // If the laser speed is too slow, don't bother calculating
+  if (laserSpeed <= 0) return null;
+
+  // Calculate the time for the laser to reach the enemy's current position
+  const timeToImpact = distance / laserSpeed;
+
+  // Predict the future position of the enemy
+  const futureX = enemyPos.x + enemyVel.x * timeToImpact;
+  const futureY = enemyPos.y + enemyVel.y * timeToImpact;
+
+  return new Vector(futureX, futureY);
 }
