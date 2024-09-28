@@ -6,7 +6,7 @@ import { UIStore } from "../UI/store";
 import { sndPlugin } from "../main";
 
 export class Blast extends Actor {
-  speed = 400;
+  speed = 425;
   damage = 5;
   blastMaterial: Material | undefined;
   gameOverSignal = new Signal("gameover");

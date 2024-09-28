@@ -38,6 +38,8 @@ export class MainScene extends Scene {
     //debug pause
     this.input.keyboard.on("press", e => {
       if (e.key === "Space") {
+        console.log(engine);
+
         const testclock = engine.debug.useTestClock();
         testclock.stop();
       } else if (e.key == "Enter") {

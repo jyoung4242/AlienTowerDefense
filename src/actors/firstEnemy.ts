@@ -1,4 +1,4 @@
-import { Actor, Engine, Random, Vector } from "excalibur";
+import { Actor, Collider, CollisionContact, CollisionType, Engine, Random, Side, Vector } from "excalibur";
 import { ExFSM, ExState } from "../lib/ExFSM";
 import { enemyIdleAnimation, enemyActiveAnimation } from "../animations/enemyAnimation";
 import { firstSpawn } from "./firstSpawn";
@@ -21,12 +21,14 @@ export class firstEnemy extends Actor {
   spawnTrigger = 250;
   spawnTiks = 0;
   gameOverSignal = new Signal("gameover");
+  speed = 20;
 
   constructor(targetPos: Vector, public screenHeight: number, public level?: number) {
     super({
       name: "enemy",
       radius: 12,
       pos: new Vector(targetPos.x + 800, targetPos.y),
+      collisionType: CollisionType.Passive,
     });
     this.currentAngle = this.rng.integer(0, 360);
     this.anchorPoint = targetPos;
@@ -47,11 +49,26 @@ export class firstEnemy extends Actor {
     this.distanceToCenter = this.screenHeight / 2 - this.rng.integer(0, 60);
     this.pos.x = this.distanceToCenter * Math.cos(angleToRads(this.currentAngle)) + targetPos.x;
     this.pos.y = this.distanceToCenter * Math.sin(angleToRads(this.currentAngle)) + targetPos.y;
-    console.log(this.pos);
   }
 
   onInitialize(engine: Engine): void {
     this.gameOverSignal.listen(() => this.kill());
+  }
+
+  onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact): void {
+    if (other.owner.name == "turret") {
+      this.hp -= 3;
+      //@ts-ignore
+      other.owner.hp -= 20;
+      sndPlugin.playSound("turretexplosion");
+      if (this.hp <= 0) {
+        this.kill();
+      }
+      //@ts-ignore
+      if (other.owner.hp <= 0) {
+        other.owner.kill();
+      }
+    }
   }
 
   onPreUpdate(engine: Engine, delta: number): void {

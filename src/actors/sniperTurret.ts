@@ -30,7 +30,7 @@ export class SniperTurret extends Actor {
       y: spawnPosition.y,
       z: 0,
       collisionType: CollisionType.Passive,
-      radius: 24,
+      radius: 12,
     });
     this.scale = new Vector(2, 2);
     this.animationStates.register(new IdleState(this), new AlertState(this));
@@ -88,7 +88,7 @@ export class SniperTurret extends Actor {
 
   fire(startingPosition: Vector, target: Entity, engine: Engine) {
     if (target) {
-      const predictedPosition = getPredictedPosition((target as Actor).pos, (target as Actor).vel, this.pos, 200);
+      const predictedPosition = getPredictedPosition((target as Actor).pos, (target as Actor).vel, this.pos, 250);
       engine.currentScene.add(new Blast(startingPosition, predictedPosition as Vector, this.store));
     }
   }

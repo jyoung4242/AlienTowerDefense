@@ -103,6 +103,9 @@ class NextWave extends ExState {
     showHud();
     showWaveBanner();
     (this.scene as MainScene).waveManager.level++;
+    console.log("***********************");
+    console.log("New Wave");
+    console.log("***********************");
     setTimeout(() => this.fsm.set("active"), 2500);
   }
 
@@ -128,6 +131,7 @@ class WaveActive extends ExState {
   rng: Random = new Random();
   levelTimer = 60;
   intervalHanlder: any = null;
+  moneyInterval: any = null;
   constructor(public scene: Scene, public fsm: ExFSM) {
     super("active", fsm);
   }
@@ -147,16 +151,21 @@ class WaveActive extends ExState {
 
     this.intervalHanlder = setInterval(() => {
       this.levelTimer--;
+      (this.scene as MainScene).waveManager.store!.incMoney(1);
       (this.scene as MainScene).waveManager.store!.timer!.setTime(this.levelTimer);
       if (this.levelTimer <= 0) {
         clearInterval(this.intervalHanlder);
         this.fsm.set("cleanup");
       }
     }, 1000);
+    this.moneyInterval = setInterval(() => {
+      (this.scene as MainScene).waveManager.store!.incMoney(1);
+    }, 2000);
   }
 
   exit(_next: ExState | null, ...params: any): void | Promise<void> {
     clearInterval(this.intervalHanlder);
+    clearInterval(this.moneyInterval);
   }
   update(...params: any): void | Promise<void> {
     const engine = this.scene.engine;
@@ -179,8 +188,9 @@ class WaveCleanup extends ExState {
     setBannerText("Wave Complete!!!!");
     showWaveCompleteBanner();
     incWaveNum();
+    const level = (this.scene as MainScene).waveManager.level;
     (this.scene as MainScene).waveManager.store!.incScore(25);
-    (this.scene as MainScene).waveManager.store!.incMoney(100);
+    (this.scene as MainScene).waveManager.store!.incMoney(100 + level * 25);
     setTimeout(() => {
       hideWaveCompleteBanner();
       this.fsm.set("nextwave");

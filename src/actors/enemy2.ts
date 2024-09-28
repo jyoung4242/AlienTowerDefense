@@ -26,9 +26,11 @@ export class Enemy2 extends Actor {
     super({
       name: "enemy",
       radius: 16,
-      collisionType: CollisionType.Active,
+      collisionType: CollisionType.Passive,
     });
-    console.log(position);
+    console.log("enemy id: ", this.id);
+
+    console.log("enemy id: ", this.id, "target position: ", position);
     this.scale = new Vector(2.5, 2.5);
     this.angle = this.rng.floating(0.0, 2.0);
     this.targetPos = position.clone();
@@ -43,15 +45,15 @@ export class Enemy2 extends Actor {
     this.distance = screenHeight / 2 - this.rng.integer(0, 60);
     const posx = this.distance * Math.cos(this.angle);
     const posy = this.distance * Math.sin(this.angle);
-    console.log("angle: ", this.angle);
+    console.log("enemy id: ", this.id, "angle: ", this.angle);
+    console.log("enemy id: ", this.id, `posx: ${posx}, posy: ${posy}`);
+    console.log("enemy id: ", this.id, "position before", this.pos);
 
-    console.log(`posx: ${posx}, posy: ${posy}`);
-    console.log("position before", this.pos);
     this.pos = this.targetPos.add(new Vector(posx, posy));
-    console.log("position after", this.pos);
+    console.log("enemy id: ", this.id, "position after", this.pos);
     const nextPosition = this.pos.sub(this.targetPos).negate().normalize().scale(this.speed);
     this.vel = nextPosition;
-    console.log(this.vel, nextPosition, this.targetPos);
+    console.log("enemy id: ", this.id, "vel: ", this.vel);
 
     this.gameOverSignal.listen(() => this.kill());
   }

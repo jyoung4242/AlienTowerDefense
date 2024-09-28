@@ -57,8 +57,9 @@ export class PlayingField extends Actor {
       let getCurrentTurret = this.store.getCurrentTurret();
       let currentTurretCost = getCurrentTurret.cost;
       let currentMoney = this.store.getMoney();
+      console.log(currentMoney, currentTurretCost);
 
-      if (currentMoney || currentMoney! >= currentTurretCost) {
+      if (currentMoney && currentMoney! >= currentTurretCost) {
         this.store.decMoney(currentTurretCost);
         switch (getCurrentTurret.name) {
           case "turret":

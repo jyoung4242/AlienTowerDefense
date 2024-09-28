@@ -26,7 +26,7 @@ export class firstSpawn extends Actor {
       name: "spawn",
       radius: 12,
       pos: startingposition,
-      collisionType: CollisionType.Active,
+      collisionType: CollisionType.Passive,
       z: 0,
     });
 
@@ -50,6 +50,9 @@ export class firstSpawn extends Actor {
           .negate()
           .normalize()
           .scale(this.speed);
+        this.vel = nextPosition;
+      } else if (other.owner.name === "ship") {
+        const nextPosition = this.pos.sub(playerShip.pos).negate().normalize().scale(this.speed);
         this.vel = nextPosition;
       }
     };
@@ -91,8 +94,6 @@ export class firstSpawn extends Actor {
     this.vel = nextPosition;
     this.gameOverSignal.listen(() => this.kill());
   }
-
-  onPreUpdate(engine: Engine, delta: number): void {}
 }
 
 class idleState extends ExState {
