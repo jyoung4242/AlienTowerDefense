@@ -6,6 +6,7 @@ import { Signal } from "./lib/Signals";
 import { PlayingField } from "./actors/playingField";
 import { UIStore } from "./UI/store";
 import { StartingModal } from "./UI/startingModal";
+import { toggleMusic } from "./main";
 
 export class MainScene extends Scene {
   store: UIStore | undefined;
@@ -32,6 +33,16 @@ export class MainScene extends Scene {
 
     this.startwaveSignal.listen(() => {
       this.closeModal();
+    });
+
+    //debug pause
+    this.input.keyboard.on("press", e => {
+      if (e.key === "Space") {
+        const testclock = engine.debug.useTestClock();
+        testclock.stop();
+      } else if (e.key == "Enter") {
+        toggleMusic();
+      }
     });
 
     let screenArea = engine.screen.contentArea;

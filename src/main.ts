@@ -42,5 +42,17 @@ game.goToScene("mainScene");
 
 setSeed(BGMseed);
 setBPM(100);
-changeGain(0.3);
+changeGain(0.15);
 start();
+
+let toggle = false;
+
+export function toggleMusic() {
+  if (!toggle) {
+    stop();
+    toggle = true;
+  } else {
+    start();
+    toggle = false;
+  }
+}

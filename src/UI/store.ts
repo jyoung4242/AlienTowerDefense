@@ -2,6 +2,7 @@ import { Actor, Color, Engine, Font, GraphicsGroup, Label, ScreenElement, Sprite
 import { NineSlice, NineSliceConfig, NineSliceStretch } from "./9slice";
 import { Resources, sniperTurretSpriteSheet, turretSpriteSheet } from "../resources";
 import { Signal } from "../lib/Signals";
+import { sndPlugin } from "../main";
 
 const shrunkTurret = turretSpriteSheet.getSprite(0, 0).clone();
 shrunkTurret.scale = new Vector(0.5, 0.5);
@@ -12,7 +13,7 @@ class UnitFrame extends Actor {
   costlabel: Label;
   availableUnits = [
     { name: "turret", cost: 25, image: shrunkTurret },
-    { name: "sniper", cost: 50, image: shrunkSniper },
+    { name: "sniper", cost: 75, image: shrunkSniper },
   ];
   unitIndex = 0;
   gGroup: GraphicsGroup;
@@ -157,6 +158,7 @@ class RepairShip extends Actor {
       const currentFunds = this.store.getMoney();
       if (currentFunds >= 100) {
         // repair ship
+        sndPlugin.playSound("healship");
         this.repairShipSignal.send();
         this.store.decMoney(100);
       }

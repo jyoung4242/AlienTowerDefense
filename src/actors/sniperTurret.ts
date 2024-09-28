@@ -88,8 +88,6 @@ export class SniperTurret extends Actor {
 
   fire(startingPosition: Vector, target: Entity, engine: Engine) {
     if (target) {
-      console.log(target);
-
       const predictedPosition = getPredictedPosition((target as Actor).pos, (target as Actor).vel, this.pos, 200);
       engine.currentScene.add(new Blast(startingPosition, predictedPosition as Vector, this.store));
     }

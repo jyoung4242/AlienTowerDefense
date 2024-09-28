@@ -1,4 +1,4 @@
-import { BoundingBox, Engine, Scene, Vector } from "excalibur";
+import { BoundingBox, Engine, Scene, Vector, Random } from "excalibur";
 import { ExFSM, ExState } from "../lib/ExFSM";
 import { playerShip } from "../actors/ship";
 import { firstEnemy } from "../actors/firstEnemy";
@@ -21,6 +21,7 @@ import { UIStore } from "../UI/store";
 import { PlayingField } from "../actors/playingField";
 import { MainScene } from "../scene";
 import { StartingModal } from "../UI/startingModal";
+import { Enemy2 } from "../actors/enemy2";
 
 export class WaveSystem {
   store: UIStore | undefined = undefined;
@@ -124,6 +125,7 @@ class WaveInit extends ExState {
   }
 }
 class WaveActive extends ExState {
+  rng: Random = new Random();
   levelTimer = 60;
   intervalHanlder: any = null;
   constructor(public scene: Scene, public fsm: ExFSM) {
@@ -134,12 +136,13 @@ class WaveActive extends ExState {
     hideWaveBanner();
     this.levelTimer = 60;
     const loops = (this.scene as MainScene).waveManager.level;
-    console.log("loops", loops);
 
     for (let i = 0; i < loops; i++) {
-      console.log("loop", i);
-
-      this.scene.add(new firstEnemy(playerShip.getPos(), this.scene.engine.screen.contentArea.height, loops));
+      if (this.rng.bool()) {
+        this.scene.add(new firstEnemy(playerShip.getPos(), this.scene.engine.screen.contentArea.height, loops));
+      } else {
+        this.scene.add(new Enemy2(playerShip.getPos()));
+      }
     }
 
     this.intervalHanlder = setInterval(() => {

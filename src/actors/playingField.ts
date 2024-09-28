@@ -7,6 +7,7 @@ import { UIStore } from "../UI/store";
 import { Resources } from "../resources";
 import { SniperTurret } from "./sniperTurret";
 import { playerShip } from "./ship";
+import { sndPlugin } from "../main";
 
 export class PlayingField extends Actor {
   store: UIStore;
@@ -68,6 +69,7 @@ export class PlayingField extends Actor {
             break;
         }
       }
+      sndPlugin.playSound("placeTurret");
     });
   }
 

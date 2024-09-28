@@ -15,6 +15,7 @@ import unitFrameShip from "./assets/unitframeship.png";
 import sniperTurret from "./assets/sniperturret-Sheet.png";
 import star from "./assets/star.png";
 import background from "./assets/bkgnd.png";
+import enemy2 from "./assets/enemy2.png";
 
 export const Resources = {
   shipImageResource: new ImageSource(shipImage),
@@ -31,6 +32,7 @@ export const Resources = {
   sniperTurret: new ImageSource(sniperTurret),
   star: new ImageSource(star),
   background: new ImageSource(background),
+  enemy2: new ImageSource(enemy2),
 };
 
 export const shipSpriteSheet = SpriteSheet.fromImageSource({
@@ -45,6 +47,16 @@ export const shipSpriteSheet = SpriteSheet.fromImageSource({
 
 export const enemy1SpriteSheet = SpriteSheet.fromImageSource({
   image: Resources.enemy1ImageResource,
+  grid: {
+    rows: 1,
+    columns: 4,
+    spriteWidth: 24,
+    spriteHeight: 24,
+  },
+});
+
+export const enemy2SpriteSheet = SpriteSheet.fromImageSource({
+  image: Resources.enemy2,
   grid: {
     rows: 1,
     columns: 4,
