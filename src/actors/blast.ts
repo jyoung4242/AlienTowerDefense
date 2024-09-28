@@ -55,7 +55,7 @@ export class Blast extends Actor {
         //@ts-ignore
         if (other.owner.hp <= 0) {
           other.owner.kill();
-          //incScore(5);
+
           this.store.incScore(5);
         } else {
           this.store.incScore(1);

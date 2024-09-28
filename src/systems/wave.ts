@@ -101,6 +101,7 @@ class NextWave extends ExState {
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
     showHud();
     showWaveBanner();
+    (this.scene as MainScene).waveManager.level++;
     setTimeout(() => this.fsm.set("active"), 2500);
   }
 
@@ -116,7 +117,7 @@ class WaveInit extends ExState {
     playerShip.reset();
     resetUI();
     (this.scene as MainScene).waveManager.playingField!.addShip();
-
+    (this.scene as MainScene).waveManager.level = 1;
     showHud();
     showWaveBanner();
     setTimeout(() => this.fsm.set("active"), 2500);
@@ -132,10 +133,13 @@ class WaveActive extends ExState {
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
     hideWaveBanner();
     this.levelTimer = 60;
-    for (let i = 0; i < (this.scene as MainScene).waveManager.level; i++) {
-      this.scene.add(
-        new firstEnemy(playerShip.getPos(), this.scene.engine.screen.contentArea.height, (this.scene as MainScene).waveManager.level)
-      );
+    const loops = (this.scene as MainScene).waveManager.level;
+    console.log("loops", loops);
+
+    for (let i = 0; i < loops; i++) {
+      console.log("loop", i);
+
+      this.scene.add(new firstEnemy(playerShip.getPos(), this.scene.engine.screen.contentArea.height, loops));
     }
 
     this.intervalHanlder = setInterval(() => {

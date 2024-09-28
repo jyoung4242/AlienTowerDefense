@@ -4,10 +4,11 @@ import { ExFSM, ExState } from "../lib/ExFSM";
 import { HealthBar } from "../UI/healthbar";
 import { Signal } from "../lib/Signals";
 import { Blast } from "./blast";
+import { UIStore } from "../UI/store";
 
 const fieldShape = new Circle({
   radius: 250,
-  color: Color.fromRGB(255, 255, 255, 0.1),
+  color: Color.fromRGB(255, 255, 255, 0.05),
 });
 
 export class SniperTurret extends Actor {
@@ -22,7 +23,7 @@ export class SniperTurret extends Actor {
   gameOverSignal = new Signal("gameover");
   cost = 75;
 
-  constructor(spawnPosition: Vector) {
+  constructor(spawnPosition: Vector, public store: UIStore) {
     super({
       name: "turret",
       x: spawnPosition.x,
@@ -50,7 +51,8 @@ export class SniperTurret extends Actor {
         other.owner.name === "turret" ||
         other.owner.name === "field" ||
         other.owner.name === "UIStore" ||
-        other.owner.name === "unitFrame"
+        other.owner.name === "unitFrame" ||
+        other.owner.name === "playingField"
       )
         return;
       this.targets.push(other.owner);
@@ -62,7 +64,8 @@ export class SniperTurret extends Actor {
         other.owner.name === "turret" ||
         other.owner.name === "field" ||
         other.owner.name === "UIStore" ||
-        other.owner.name === "unitFrame"
+        other.owner.name === "unitFrame" ||
+        other.owner.name === "playingField"
       )
         return;
       this.targets = this.targets.filter(t => t !== other.owner);
@@ -102,7 +105,7 @@ export class SniperTurret extends Actor {
 
   fire(startingPosition: Vector, target: Entity, engine: Engine) {
     if (target) {
-      engine.currentScene.add(new Blast(startingPosition, (target as Actor).pos));
+      engine.currentScene.add(new Blast(startingPosition, (target as Actor).pos, this.store));
     }
   }
 }

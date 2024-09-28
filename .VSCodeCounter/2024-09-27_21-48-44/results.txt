@@ -1,0 +1,72 @@
+Date : 2024-09-27 21:48:44
+Directory : c:\programming\AlienTowerDefense\src
+Total : 38 files,  3361 codes, 449 comments, 471 blanks, all 4281 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| TypeScript |         37 |      3,221 |        445 |        462 |      4,128 |
+| CSS        |          1 |        140 |          4 |          9 |        153 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                   |         38 |      3,361 |        449 |        471 |      4,281 |
+| . (Files)                                                           |          6 |        525 |          7 |         61 |        593 |
+| UI                                                                  |          5 |        937 |        363 |        127 |      1,427 |
+| actors                                                              |          9 |        734 |         13 |         94 |        841 |
+| animations                                                          |          6 |        232 |          0 |         22 |        254 |
+| lib                                                                 |         10 |        746 |         63 |        134 |        943 |
+| lib (Files)                                                         |          3 |        148 |          3 |         30 |        181 |
+| lib\Chiptune                                                        |          7 |        598 |         60 |        104 |        762 |
+| shaders                                                             |          1 |         14 |          1 |          5 |         20 |
+| systems                                                             |          1 |        173 |          2 |         28 |        203 |
++---------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                            | language   | code       | comment    | blank      | total      |
++---------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\programming\AlienTowerDefense\src\UI\9slice.ts                   | TypeScript |        434 |        356 |         49 |        839 |
+| c:\programming\AlienTowerDefense\src\UI\UI.ts                       | TypeScript |         78 |          4 |         23 |        105 |
+| c:\programming\AlienTowerDefense\src\UI\healthbar.ts                | TypeScript |         26 |          0 |          6 |         32 |
+| c:\programming\AlienTowerDefense\src\UI\startingModal.ts            | TypeScript |         90 |          0 |         10 |        100 |
+| c:\programming\AlienTowerDefense\src\UI\store.ts                    | TypeScript |        309 |          3 |         39 |        351 |
+| c:\programming\AlienTowerDefense\src\actors\blast.ts                | TypeScript |         59 |          4 |          6 |         69 |
+| c:\programming\AlienTowerDefense\src\actors\fireWarmup.ts           | TypeScript |         19 |          0 |          3 |         22 |
+| c:\programming\AlienTowerDefense\src\actors\firstEnemy.ts           | TypeScript |        101 |          0 |         14 |        115 |
+| c:\programming\AlienTowerDefense\src\actors\firstSpawn.ts           | TypeScript |        106 |          1 |         16 |        123 |
+| c:\programming\AlienTowerDefense\src\actors\playingField.ts         | TypeScript |         69 |          1 |         12 |         82 |
+| c:\programming\AlienTowerDefense\src\actors\ship.ts                 | TypeScript |         71 |          1 |         11 |         83 |
+| c:\programming\AlienTowerDefense\src\actors\sniperTurret.ts         | TypeScript |        146 |          3 |         14 |        163 |
+| c:\programming\AlienTowerDefense\src\actors\trace.ts                | TypeScript |          0 |          0 |          1 |          1 |
+| c:\programming\AlienTowerDefense\src\actors\turretTower.ts          | TypeScript |        163 |          3 |         17 |        183 |
+| c:\programming\AlienTowerDefense\src\animations\blastAnimation.ts   | TypeScript |         19 |          0 |          2 |         21 |
+| c:\programming\AlienTowerDefense\src\animations\enemyAnimation.ts   | TypeScript |         32 |          0 |          3 |         35 |
+| c:\programming\AlienTowerDefense\src\animations\shipAnimation.ts    | TypeScript |         32 |          0 |          3 |         35 |
+| c:\programming\AlienTowerDefense\src\animations\sniperAnimation.ts  | TypeScript |         54 |          0 |          5 |         59 |
+| c:\programming\AlienTowerDefense\src\animations\spawnAnimation.ts   | TypeScript |         32 |          0 |          3 |         35 |
+| c:\programming\AlienTowerDefense\src\animations\turrentAnimation.ts | TypeScript |         63 |          0 |          6 |         69 |
+| c:\programming\AlienTowerDefense\src\images.d.ts                    | TypeScript |         32 |          2 |          9 |         43 |
+| c:\programming\AlienTowerDefense\src\lib\Chiptune\audio.ts          | TypeScript |        172 |          8 |         22 |        202 |
+| c:\programming\AlienTowerDefense\src\lib\Chiptune\display.ts        | TypeScript |         56 |          5 |          8 |         69 |
+| c:\programming\AlienTowerDefense\src\lib\Chiptune\generators.ts     | TypeScript |         92 |          5 |         11 |        108 |
+| c:\programming\AlienTowerDefense\src\lib\Chiptune\model.ts          | TypeScript |         17 |          5 |          4 |         26 |
+| c:\programming\AlienTowerDefense\src\lib\Chiptune\theory.ts         | TypeScript |         30 |          7 |          5 |         42 |
+| c:\programming\AlienTowerDefense\src\lib\Chiptune\tracker.ts        | TypeScript |        190 |         24 |         43 |        257 |
+| c:\programming\AlienTowerDefense\src\lib\Chiptune\utils.ts          | TypeScript |         41 |          6 |         11 |         58 |
+| c:\programming\AlienTowerDefense\src\lib\ExFSM.ts                   | TypeScript |        103 |          3 |         23 |        129 |
+| c:\programming\AlienTowerDefense\src\lib\Signals.ts                 | TypeScript |         34 |          0 |          5 |         39 |
+| c:\programming\AlienTowerDefense\src\lib\pixelAdjustment.ts         | TypeScript |         11 |          0 |          2 |         13 |
+| c:\programming\AlienTowerDefense\src\main.ts                        | TypeScript |         37 |          0 |         10 |         47 |
+| c:\programming\AlienTowerDefense\src\resources.ts                   | TypeScript |        101 |          1 |         11 |        113 |
+| c:\programming\AlienTowerDefense\src\scene.ts                       | TypeScript |         68 |          0 |         16 |         84 |
+| c:\programming\AlienTowerDefense\src\shaders\tint.ts                | TypeScript |         14 |          1 |          5 |         20 |
+| c:\programming\AlienTowerDefense\src\sounds.ts                      | TypeScript |        147 |          0 |          6 |        153 |
+| c:\programming\AlienTowerDefense\src\style.css                      | CSS        |        140 |          4 |          9 |        153 |
+| c:\programming\AlienTowerDefense\src\systems\wave.ts                | TypeScript |        173 |          2 |         28 |        203 |
+| Total                                                               |            |      3,361 |        449 |        471 |      4,281 |
++---------------------------------------------------------------------+------------+------------+------------+------------+------------+

@@ -64,7 +64,7 @@ export class PlayingField extends Actor {
             this.addChild(new TurretTower(new Vector(e.screenPos.x - this.store.width / 2, e.screenPos.y), this.store));
             break;
           case "sniper":
-            this.addChild(new SniperTurret(e.screenPos));
+            this.addChild(new SniperTurret(new Vector(e.screenPos.x - this.store.width / 2, e.screenPos.y), this.store));
             break;
         }
       }
