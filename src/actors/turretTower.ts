@@ -50,7 +50,7 @@ export class TurretTower extends Actor {
       radius: 100,
       collisionType: CollisionType.Passive,
     });
-    detectionField.graphics.use(fieldShape);
+    //detectionField.graphics.use(fieldShape);
     detectionField.onCollisionStart = (self: Collider, other: Collider, side: Side, contact: CollisionContact) => {
       if (other.owner.name === "enemy" || other.owner.name === "spawn") this.targets.push(other.owner);
     };

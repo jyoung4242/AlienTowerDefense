@@ -1,4 +1,4 @@
-import { Camera, Engine, Scene, SceneActivationContext, Vector } from "excalibur";
+import { Camera, Engine, Input, Scene, SceneActivationContext, Vector } from "excalibur";
 import { WaveSystem } from "./systems/wave";
 import { TurretTower } from "./actors/turretTower";
 import { Signal } from "./lib/Signals";
@@ -7,6 +7,7 @@ import { UIStore } from "./UI/store";
 import { StartingModal } from "./UI/startingModal";
 import { toggleMusic } from "./main";
 import { Banner } from "./UI/banner";
+import { TurretPreview } from "./actors/turretpreview";
 
 export class MainScene extends Scene {
   banner: Banner | undefined;
@@ -57,6 +58,10 @@ export class MainScene extends Scene {
     this.add(playingField);
     this.waveManager.setPlayfield(playingField, this.store, engine);
     this.add(this.store);
+    this.input.pointers.primary.on("wheel", (e: Input.WheelEvent) => {
+      this.store?.toggleTurret();
+    });
+    this.add(new TurretPreview());
 
     this.waveManager.reset();
   }

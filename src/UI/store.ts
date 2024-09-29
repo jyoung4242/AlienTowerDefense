@@ -10,6 +10,7 @@ const shrunkSniper = sniperTurretSpriteSheet.getSprite(0, 0).clone();
 shrunkSniper.scale = new Vector(0.5, 0.5);
 
 class UnitFrame extends Actor {
+  changeTurretSignal: Signal = new Signal("changeTurret");
   costlabel: Label;
   availableUnits = [
     { name: "turret", cost: 25, image: shrunkTurret },
@@ -50,6 +51,7 @@ class UnitFrame extends Actor {
       onInitialize(engine: Engine): void {
         this.on("pointerup", e => {
           this.owner.decIndex();
+          this.owner.changeTurretSignal.send([this.owner.unitIndex]);
           e.cancel();
         });
       }
@@ -67,6 +69,7 @@ class UnitFrame extends Actor {
       onInitialize(engine: Engine): void {
         this.on("pointerup", e => {
           this.owner.incIndex();
+          this.owner.changeTurretSignal.send([this.owner.unitIndex]);
           e.cancel();
         });
       }
@@ -312,6 +315,11 @@ export class UIStore extends ScreenElement {
     if (!this.unitFrame) return "none";
     const currentTurret = this.unitFrame.availableUnits[this.unitFrame.unitIndex];
     return currentTurret;
+  }
+
+  toggleTurret() {
+    if (!this.unitFrame) return;
+    this.unitFrame.incIndex();
   }
 
   setWaveTimer(newval: number) {
