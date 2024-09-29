@@ -42,7 +42,6 @@ class StartButton extends ScreenElement {
 
   onInitialize(engine: Engine): void {
     this.on("pointerup", e => {
-      console.log("clicked");
       this.startWaveSignal.send();
       if (this.owner) (this.owner as StartingModal).closeModal();
       e.cancel();

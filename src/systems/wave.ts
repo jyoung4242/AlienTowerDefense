@@ -3,27 +3,14 @@ import { ExFSM, ExState } from "../lib/ExFSM";
 import { playerShip } from "../actors/ship";
 import { firstEnemy } from "../actors/firstEnemy";
 import { Signal } from "../lib/Signals";
-import {
-  hideHud,
-  hideWaveBanner,
-  hideWaveCompleteBanner,
-  incMoney,
-  incWaveNum,
-  resetUI,
-  setBannerText,
-  setWaveTimer,
-  showHud,
-  showPreWaveModal,
-  showWaveBanner,
-  showWaveCompleteBanner,
-} from "../UI/UI";
 import { UIStore } from "../UI/store";
 import { PlayingField } from "../actors/playingField";
 import { MainScene } from "../scene";
-import { StartingModal } from "../UI/startingModal";
 import { Enemy2 } from "../actors/enemy2";
+import { Banner } from "../UI/banner";
 
 export class WaveSystem {
+  banner: Banner | undefined = undefined;
   store: UIStore | undefined = undefined;
   startwaveSignal = new Signal("startwave");
   playingField: PlayingField | undefined = undefined;
@@ -72,7 +59,6 @@ export class WaveSystem {
   reset() {
     this.level = 1;
     this.state.set("idle");
-    showPreWaveModal();
   }
 
   getStorePos() {
@@ -86,10 +72,7 @@ class WaveIdle extends ExState {
     super("idle", fsm);
   }
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
-    console.log(this.scene);
     const engine = (this.scene as MainScene).waveManager.engine;
-    console.log(engine);
-
     (this.scene as MainScene).showModal(engine);
   }
 }
@@ -100,16 +83,20 @@ class NextWave extends ExState {
   }
 
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
-    showHud();
-    showWaveBanner();
+    const banner = (this.scene as MainScene).banner as Banner;
     (this.scene as MainScene).waveManager.level++;
+    banner.setText("Wave: ", (this.scene as MainScene).waveManager.level);
+
     console.log("***********************");
     console.log("New Wave");
     console.log("***********************");
     setTimeout(() => this.fsm.set("active"), 2500);
   }
 
-  update(...params: any): void | Promise<void> {}
+  exit(_next: ExState | null, ...params: any): void | Promise<void> {
+    const banner = (this.scene as MainScene).banner as Banner;
+    banner.hideBanner();
+  }
 }
 
 class WaveInit extends ExState {
@@ -119,11 +106,8 @@ class WaveInit extends ExState {
 
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
     playerShip.reset();
-    resetUI();
     (this.scene as MainScene).waveManager.playingField!.addShip();
     (this.scene as MainScene).waveManager.level = 1;
-    showHud();
-    showWaveBanner();
     setTimeout(() => this.fsm.set("active"), 2500);
   }
 }
@@ -137,7 +121,6 @@ class WaveActive extends ExState {
   }
 
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
-    hideWaveBanner();
     this.levelTimer = 60;
     const loops = (this.scene as MainScene).waveManager.level;
 
@@ -151,13 +134,13 @@ class WaveActive extends ExState {
 
     this.intervalHanlder = setInterval(() => {
       this.levelTimer--;
-      (this.scene as MainScene).waveManager.store!.incMoney(1);
       (this.scene as MainScene).waveManager.store!.timer!.setTime(this.levelTimer);
       if (this.levelTimer <= 0) {
         clearInterval(this.intervalHanlder);
         this.fsm.set("cleanup");
       }
     }, 1000);
+
     this.moneyInterval = setInterval(() => {
       (this.scene as MainScene).waveManager.store!.incMoney(1);
     }, 2000);
@@ -170,9 +153,7 @@ class WaveActive extends ExState {
   update(...params: any): void | Promise<void> {
     const engine = this.scene.engine;
     const entities = engine.currentScene.entities;
-    // filter out ship, turret, blasts
     const filteredEntities = entities.filter(e => e.name === "spawn" || e.name === "enemy");
-    // all that's left is enemies
 
     if (filteredEntities.length <= 0) {
       this.fsm.set("cleanup");
@@ -185,14 +166,13 @@ class WaveCleanup extends ExState {
   }
 
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
-    setBannerText("Wave Complete!!!!");
-    showWaveCompleteBanner();
-    incWaveNum();
+    const banner = (this.scene as MainScene).banner as Banner;
+    banner.setText("Wave Complete!!!!");
+    banner.showBanner();
     const level = (this.scene as MainScene).waveManager.level;
     (this.scene as MainScene).waveManager.store!.incScore(25);
     (this.scene as MainScene).waveManager.store!.incMoney(100 + level * 25);
     setTimeout(() => {
-      hideWaveCompleteBanner();
       this.fsm.set("nextwave");
     }, 2000);
   }
@@ -204,14 +184,14 @@ class WaveGameOver extends ExState {
   }
 
   enter(_previous: ExState | null, ...params: any): void | Promise<void> {
-    setBannerText("Game Over");
+    const banner = (this.scene as MainScene).banner as Banner;
+    banner.setText("Game Over");
+    banner.showBanner();
     let gameOverSignal = new Signal("gameover");
     gameOverSignal.send();
-    showWaveCompleteBanner();
+
     setTimeout(() => {
-      hideWaveCompleteBanner();
-      hideHud();
-      setBannerText("Wave Complete!!!!");
+      banner.hideBanner();
       this.fsm.set("idle");
     }, 2000);
   }

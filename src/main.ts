@@ -2,7 +2,7 @@ import "./style.css";
 import { UI } from "@peasy-lib/peasy-ui";
 import { Engine, DisplayMode, Color } from "excalibur";
 import { loader } from "./resources";
-import { model, template, setUIDims } from "./UI/UI";
+import { model, template } from "./UI/UI";
 import { mainScene } from "./scene";
 import { worldToPagePixelRatio } from "./lib/pixelAdjustment";
 import { play, start, stop, setBPM, bumpProgression, setSeed } from "../src/lib/Chiptune/tracker";
@@ -34,8 +34,6 @@ const game = new Engine({
   backgroundColor: Color.fromHex("#2e2e2e"),
 });
 document.documentElement.style.setProperty("--ex-pixel-ratio", worldToPagePixelRatio(game).toString());
-
-setUIDims(game.screen.canvasWidth, game.screen.canvasHeight);
 
 await game.start(loader);
 game.goToScene("mainScene");

@@ -1,14 +1,15 @@
 import { Camera, Engine, Scene, SceneActivationContext, Vector } from "excalibur";
 import { WaveSystem } from "./systems/wave";
 import { TurretTower } from "./actors/turretTower";
-import { decMoney, getMoney } from "./UI/UI";
 import { Signal } from "./lib/Signals";
 import { PlayingField } from "./actors/playingField";
 import { UIStore } from "./UI/store";
 import { StartingModal } from "./UI/startingModal";
 import { toggleMusic } from "./main";
+import { Banner } from "./UI/banner";
 
 export class MainScene extends Scene {
+  banner: Banner | undefined;
   store: UIStore | undefined;
   modal: StartingModal | undefined;
   waveManager: WaveSystem;
@@ -35,6 +36,8 @@ export class MainScene extends Scene {
       this.closeModal();
     });
 
+    this.banner = new Banner(engine);
+    this.add(this.banner);
     //debug pause
     this.input.keyboard.on("press", e => {
       if (e.key === "Space") {
@@ -54,6 +57,7 @@ export class MainScene extends Scene {
     this.add(playingField);
     this.waveManager.setPlayfield(playingField, this.store, engine);
     this.add(this.store);
+
     this.waveManager.reset();
   }
 
