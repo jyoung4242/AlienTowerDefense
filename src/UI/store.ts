@@ -18,7 +18,7 @@ class UnitFrame extends Actor {
   ];
   unitIndex = 0;
   gGroup: GraphicsGroup;
-  constructor(pos: Vector, ownner: UIStore) {
+  constructor(pos: Vector, public ownner: UIStore) {
     const { width } = ownner;
     let center = width / 2 - 8 * 6;
     console.log("center: ", center);
@@ -79,13 +79,14 @@ class UnitFrame extends Actor {
     this.addChild(new rightArrow(this));
   }
 
-  incIndex() {
+  incIndex = () => {
     this.unitIndex++;
     if (this.unitIndex > this.availableUnits.length - 1) this.unitIndex = 0;
     //@ts-ignore
     this.gGroup.members[1].graphic = this.availableUnits[this.unitIndex].image;
     this.costlabel.text = `Cost: ${this.availableUnits[this.unitIndex].cost}`;
-  }
+    this.changeTurretSignal.send([this.unitIndex]);
+  };
 
   decIndex() {
     this.unitIndex--;
