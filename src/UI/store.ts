@@ -17,8 +17,12 @@ class UnitFrame extends Actor {
   ];
   unitIndex = 0;
   gGroup: GraphicsGroup;
-  constructor(pos: Vector) {
-    super({ name: "unitFrame", x: pos.x, y: pos.y, width: 16, height: 32, z: 1, scale: new Vector(6, 6), anchor: Vector.Zero });
+  constructor(pos: Vector, ownner: UIStore) {
+    const { width } = ownner;
+    let center = width / 2 - 8 * 6;
+    console.log("center: ", center);
+
+    super({ name: "unitFrame", x: center, y: pos.y, width: 16, height: 16, z: 1, scale: new Vector(6, 6), anchor: Vector.Zero });
     this.gGroup = new GraphicsGroup({
       members: [Resources.unitFrame.toSprite(), { graphic: this.availableUnits[this.unitIndex].image, offset: new Vector(6, 6) }],
     });
@@ -100,8 +104,10 @@ class WaveTimeRemaining extends Label {
     window.alert("wave over");
   };
   intervalHandler: any;
-  constructor(public position: Vector) {
-    super({ name: "waveTimeRemaining", x: position.x, y: position.y, width: 5, height: 50, z: 2, anchor: Vector.Zero });
+  constructor(public position: Vector, owner: UIStore) {
+    const { width } = owner;
+    let center = width / 2 - 8;
+    super({ name: "waveTimeRemaining", x: position.x, y: position.y, width: 16, height: 50, z: 2, anchor: Vector.Zero });
     this.text = `
     Wave Time 
     Remaining: ${this.time}`;
@@ -281,9 +287,9 @@ export class UIStore extends ScreenElement {
 
     const graphic9slice = new NineSlice(config9slice);
     this.graphics.use(graphic9slice);
-    this.unitFrame = new UnitFrame(new Vector(calcWidth / 2 - 80, 10));
+    this.unitFrame = new UnitFrame(new Vector(calcWidth / 2 - 80, 10), this);
     this.addChild(this.unitFrame);
-    this.timer = new WaveTimeRemaining(new Vector(calcWidth / 4 - 80, 400));
+    this.timer = new WaveTimeRemaining(new Vector(calcWidth / 4 - 80, 400), this);
     this.addChild(this.timer);
     this.addChild(new RepairShip(new Vector(calcWidth / 2 - 80, 220), this));
     this.moneyChild = new MoneyLabel(new Vector(calcWidth / 2 - 105, 550));

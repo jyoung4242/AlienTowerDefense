@@ -41,6 +41,9 @@ export class Banner extends ScreenElement {
     this.startSignal.listen(() => {
       this.visible = true;
       this.setText("Wave: ", 1);
+      setTimeout(() => {
+        this.visible = false;
+      }, 1500);
     });
   }
 

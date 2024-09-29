@@ -16,6 +16,7 @@ export class Enemy2 extends Actor {
   damage = 50;
   distance = 0;
   angle = 0;
+  currentAngle = 0;
   targetPos: Vector;
 
   animationStates = new ExFSM();
@@ -32,7 +33,8 @@ export class Enemy2 extends Actor {
 
     console.log("enemy id: ", this.id, "target position: ", position);
     this.scale = new Vector(2.5, 2.5);
-    this.angle = this.rng.floating(0.0, 2.0);
+    this.angle = this.rng.integer(0, 360);
+    this.currentAngle = angleToRads(this.angle);
     this.targetPos = position.clone();
     this.animationStates.register(new idleState(this), new activeState(this));
     this.animationStates.set("active");
@@ -43,8 +45,8 @@ export class Enemy2 extends Actor {
   onInitialize(engine: Engine): void {
     const screenHeight = engine.screen.contentArea.height;
     this.distance = screenHeight / 2 - this.rng.integer(0, 60);
-    const posx = this.distance * Math.cos(this.angle);
-    const posy = this.distance * Math.sin(this.angle);
+    const posx = this.distance * Math.cos(this.currentAngle);
+    const posy = this.distance * Math.sin(this.currentAngle);
     console.log("enemy id: ", this.id, "angle: ", this.angle);
     console.log("enemy id: ", this.id, `posx: ${posx}, posy: ${posy}`);
     console.log("enemy id: ", this.id, "position before", this.pos);
