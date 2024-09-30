@@ -37,11 +37,6 @@ export class Blast extends Actor {
       this.kill();
     }
     this.graphics.use(blastAnimation);
-    this.blastMaterial = engine.graphicsContext.createMaterial({
-      name: "outline",
-      fragmentSource: tintShader,
-    });
-    this.graphics.material = this.blastMaterial;
   }
 
   onCollisionStart = (self: Collider, other: Collider, side: Side, contact: CollisionContact): void => {

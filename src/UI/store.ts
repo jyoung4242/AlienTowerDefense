@@ -19,11 +19,8 @@ class UnitFrame extends Actor {
   unitIndex = 0;
   gGroup: GraphicsGroup;
   constructor(pos: Vector, public ownner: UIStore) {
-    const { width } = ownner;
-    let center = width / 2 - 8 * 6;
-    console.log("center: ", center);
+    super({ name: "unitFrame", x: 0, y: pos.y, width: 16, height: 16, z: 1, scale: new Vector(6, 6), anchor: Vector.Zero });
 
-    super({ name: "unitFrame", x: center, y: pos.y, width: 16, height: 16, z: 1, scale: new Vector(6, 6), anchor: Vector.Zero });
     this.gGroup = new GraphicsGroup({
       members: [Resources.unitFrame.toSprite(), { graphic: this.availableUnits[this.unitIndex].image, offset: new Vector(6, 6) }],
     });
@@ -77,6 +74,15 @@ class UnitFrame extends Actor {
 
     this.addChild(new leftArrow(this));
     this.addChild(new rightArrow(this));
+
+    this.graphics.use(this.gGroup);
+  }
+
+  onInitialize(engine: Engine): void {
+    const parentWidth = this.ownner.dims;
+    debugger;
+    let childWidth = this.width;
+    this.pos.x = (parentWidth.x - childWidth) / 2;
   }
 
   incIndex = () => {
@@ -94,9 +100,6 @@ class UnitFrame extends Actor {
     //@ts-ignore
     this.gGroup.members[1].graphic = this.availableUnits[this.unitIndex].image;
     this.costlabel.text = `Cost: ${this.availableUnits[this.unitIndex].cost}`;
-  }
-  onInitialize(engine: Engine): void {
-    this.graphics.use(this.gGroup);
   }
 }
 
