@@ -80,7 +80,6 @@ class UnitFrame extends Actor {
 
   onInitialize(engine: Engine): void {
     const parentWidth = this.ownner.dims;
-    debugger;
     let childWidth = this.width;
     this.pos.x = (parentWidth.x - childWidth) / 2;
   }

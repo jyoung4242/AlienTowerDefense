@@ -8,19 +8,26 @@ import { StartingModal } from "./UI/startingModal";
 import { toggleMusic } from "./main";
 import { Banner } from "./UI/banner";
 import { TurretPreview } from "./actors/turretpreview";
+import { RentalPool } from "./lib/RentalPool";
 
 export class MainScene extends Scene {
+  playingField: PlayingField | undefined;
   banner: Banner | undefined;
   store: UIStore | undefined;
   modal: StartingModal | undefined;
   waveManager: WaveSystem;
   cameraShakeSignal = new Signal("cameraShake");
   startwaveSignal = new Signal("startwave");
+  enemyPool = new RentalPool(
+    () => {},
+    used => used,
+    750
+  );
 
   constructor() {
     super();
     this.waveManager = new WaveSystem(this);
-    this.waveManager.initialize();
+    console.log(this);
   }
 
   getState() {
@@ -28,6 +35,7 @@ export class MainScene extends Scene {
   }
 
   onInitialize(engine: Engine): void {
+    this.waveManager.initialize(engine);
     let screenDims = engine.screen.contentArea;
     this.cameraShakeSignal.listen(() => {
       this.camera.shake(5, 5, 0.75);
@@ -54,9 +62,9 @@ export class MainScene extends Scene {
     let screenArea = engine.screen.contentArea;
     let uiScreenDims = new Vector(screenArea.width * 0.15, screenArea.height);
     this.store = new UIStore(uiScreenDims, new Vector(0, 0));
-    let playingField = new PlayingField(engine, this.store);
-    this.add(playingField);
-    this.waveManager.setPlayfield(playingField, this.store, engine);
+    this.playingField = new PlayingField(engine, this.store);
+    this.add(this.playingField);
+    this.waveManager.setPlayfield(this.playingField, this.store, engine);
     this.add(this.store);
     this.input.pointers.primary.on("wheel", (e: Input.WheelEvent) => {
       this.store?.toggleTurret();

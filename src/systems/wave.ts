@@ -8,19 +8,48 @@ import { PlayingField } from "../actors/playingField";
 import { MainScene } from "../scene";
 import { Enemy2 } from "../actors/enemy2";
 import { Banner } from "../UI/banner";
+import { RentalPool } from "../lib/RentalPool";
 
 export class WaveSystem {
   banner: Banner | undefined = undefined;
   store: UIStore | undefined = undefined;
   startwaveSignal = new Signal("startwave");
+  returnToPoolSignal = new Signal("returnEnemyToPool");
   playingField: PlayingField | undefined = undefined;
   state = new ExFSM();
   level = 1;
   engine: Engine | undefined = undefined;
 
+  en2Pool: RentalPool<Enemy2> | undefined;
+  en1Pool: RentalPool<firstEnemy> | undefined;
+  enemySpawnParams = {
+    position: new Vector(0, 0),
+    height: 0,
+    level: 1,
+  };
+
   constructor(public scene: Scene) {}
 
-  initialize() {
+  makeE1 = (): firstEnemy => {
+    return new firstEnemy(this.enemySpawnParams.position.clone(), this.enemySpawnParams.height, this.enemySpawnParams.level);
+  };
+  cleanUpE1 = (incoming: firstEnemy): firstEnemy => {
+    console.log("cleanUpE1");
+    incoming.setNewPosition(this.enemySpawnParams.position, this.enemySpawnParams.level);
+    incoming.hp = incoming.maxHP;
+    return incoming;
+  };
+  makeE2 = (): Enemy2 => {
+    return new Enemy2(this.enemySpawnParams.position.clone());
+  };
+  cleanUpE2 = (incoming: Enemy2): Enemy2 => {
+    console.log("cleanUpE2");
+    incoming.setNewPosition(this.enemySpawnParams.position);
+    incoming.hp = incoming.maxhp;
+    return incoming;
+  };
+
+  initialize(engine: Engine) {
     this.state.register(
       new WaveInit(this.scene, this.state),
       new WaveIdle(this.scene, this.state),
@@ -29,8 +58,23 @@ export class WaveSystem {
       new WaveGameOver(this.scene, this.state),
       new NextWave(this.scene, this.state)
     );
+    console.log(this.scene);
 
+    this.enemySpawnParams.height = engine.screen.contentArea.height;
+    this.en2Pool = new RentalPool(this.makeE2.bind(this), this.cleanUpE2.bind(this), 1000);
+    this.en1Pool = new RentalPool(this.makeE1.bind(this), this.cleanUpE1.bind(this), 1000);
     this.startwaveSignal.listen(this.startWave);
+    this.returnToPoolSignal.listen((e: CustomEvent) => {
+      console.log("returning enemy to pool", e.detail);
+
+      let returnedEnemy = e.detail.params[0];
+      if (!this.en1Pool || !this.en2Pool) return;
+      if (returnedEnemy instanceof firstEnemy) {
+        this.en1Pool.return(returnedEnemy);
+      } else if (returnedEnemy instanceof Enemy2) {
+        this.en2Pool.return(returnedEnemy);
+      }
+    });
   }
 
   setPlayfield(instance: PlayingField, store?: UIStore, engine?: Engine) {
@@ -125,11 +169,18 @@ class WaveActive extends ExState {
     const loops = (this.scene as MainScene).waveManager.level;
 
     for (let i = 0; i < loops; i++) {
-      if (this.rng.bool()) {
-        this.scene.add(new firstEnemy(playerShip.getPos(), this.scene.engine.screen.contentArea.height, loops));
-      } else {
-        this.scene.add(new Enemy2(playerShip.getPos()));
-      }
+      let nextEnemy: firstEnemy | Enemy2;
+      let wave = (this.scene as MainScene).waveManager;
+
+      wave.enemySpawnParams.position = playerShip.pos.clone();
+      wave.enemySpawnParams.level = loops;
+      console.log("spawning enemy ");
+      if (!wave.en1Pool || !wave.en2Pool) return;
+      if (this.rng.bool()) nextEnemy = wave.en1Pool.rent(true);
+      else nextEnemy = wave.en2Pool.rent(true);
+      console.log("next enemy: ", nextEnemy);
+
+      this.scene.add(nextEnemy);
     }
 
     this.intervalHanlder = setInterval(() => {

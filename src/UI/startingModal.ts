@@ -91,8 +91,6 @@ export class StartingModal extends ScreenElement {
   }
 
   closeModal() {
-    console.log("kill actor");
-
     this.kill();
   }
 }

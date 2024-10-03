@@ -43,7 +43,7 @@ export class TurretPreview extends Actor {
     });
 
     this.changeTurretSignal.listen((params: any) => {
-      console.log("changeTurretSignal", params);
+      //console.log("changeTurretSignal", params);
       if (params.detail.params[0] == 1) this.fsm.set("sniper");
       else this.fsm.set("turret");
     });
@@ -51,11 +51,11 @@ export class TurretPreview extends Actor {
 
   onPreUpdate(engine: Engine, delta: number): void {
     const currentstate = this.fsm.get();
-    console.log("currentstate", currentstate);
+    //console.log("currentstate", currentstate);
 
     //@ts-ignore
     if ((currentstate as ExState).name == "sniper") {
-      console.log("here");
+      //console.log("here");
 
       //@ts-ignore
       this.graphicsGroup.members[0].graphic.radius = 250;

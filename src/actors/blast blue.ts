@@ -4,12 +4,18 @@ import { tintShader } from "../shaders/tint blue";
 import { Signal } from "../lib/Signals";
 import { UIStore } from "../UI/store";
 import { sndPlugin } from "../main";
+import { MainScene } from "../scene";
+import { TurretTower } from "./turretTower";
+import { SniperTurret } from "./sniperTurret";
 
 export class Blast extends Actor {
   speed = 425;
   damage = 5;
   blastMaterial: Material | undefined;
   gameOverSignal = new Signal("gameover");
+  returnToPoolSignal = new Signal("returnEnemyToPool");
+  lifespan = 1250;
+  lifetik = 0;
 
   constructor(public startingPosition: Vector, public targetPosition: Vector, public store: UIStore) {
     super({
@@ -18,6 +24,15 @@ export class Blast extends Actor {
       pos: startingPosition,
       collisionType: CollisionType.Passive,
     });
+  }
+
+  reset(position: Vector, target: Vector) {
+    this.startingPosition = position;
+    this.targetPosition = target;
+    this.pos = position;
+    const nextPosition = this.pos.sub(this.targetPosition).negate().normalize().scale(this.speed);
+    this.vel = nextPosition;
+    this.lifetik = 0;
   }
 
   onInitialize(engine: Engine): void {
@@ -29,24 +44,26 @@ export class Blast extends Actor {
       fragmentSource: tintShader,
     });
     this.graphics.material = this.blastMaterial;
-    this.gameOverSignal.listen(() => this.kill());
+    this.gameOverSignal.listen(() => {
+      if (this.scene) this.scene.remove(this);
+    });
   }
 
   onPreUpdate(engine: Engine, delta: number): void {
     if (this.isOffScreen) {
-      this.kill();
+      if (this.scene) this.scene.remove(this);
     }
     this.graphics.use(blastAnimation);
-    /* this.blastMaterial = engine.graphicsContext.createMaterial({
-      name: "outline",
-      fragmentSource: tintShader,
-    });
-    this.graphics.material = this.blastMaterial; */
+
+    this.lifetik += delta;
+    if (this.lifetik > this.lifespan) {
+      if (this.scene) this.scene.remove(this);
+    }
   }
 
   onCollisionStart = (self: Collider, other: Collider, side: Side, contact: CollisionContact): void => {
     if (other.owner.name === "enemy" || other.owner.name === "spawn") {
-      this.kill();
+      if (this.scene) this.scene.remove(this);
       sndPlugin.playSound("enemyHit");
       //@ts-ignore
       if (other.owner.hp > 0) {
@@ -54,8 +71,8 @@ export class Blast extends Actor {
         other.owner.hp -= this.damage;
         //@ts-ignore
         if (other.owner.hp <= 0) {
-          other.owner.kill();
-
+          if (other.owner.scene) other.owner.scene.remove(other.owner);
+          this.returnToPoolSignal.send([other.owner]);
           this.store.incScore(5);
         } else {
           this.store.incScore(1);

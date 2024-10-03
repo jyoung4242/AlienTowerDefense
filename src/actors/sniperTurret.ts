@@ -21,7 +21,9 @@ export class SniperTurret extends Actor {
   maxhp = 30;
   healthbar: HealthBar;
   gameOverSignal = new Signal("gameover");
+  returnToPoolSignal = new Signal("returnToPool");
   cost = 75;
+  blast: Blast | undefined;
 
   constructor(spawnPosition: Vector, public store: UIStore) {
     super({
@@ -34,7 +36,7 @@ export class SniperTurret extends Actor {
     });
     this.scale = new Vector(2, 2);
     this.animationStates.register(new IdleState(this), new AlertState(this));
-
+    this.blast = new Blast(new Vector(0, 0), new Vector(0, 0), store);
     // create child actor for 'detection field'
     const detectionField = new Actor({
       name: "field",
@@ -58,7 +60,10 @@ export class SniperTurret extends Actor {
   }
   onInitialize(engine: Engine): void {
     this.animationStates.set("idle");
-    this.gameOverSignal.listen(() => this.kill());
+    this.gameOverSignal.listen(() => {
+      if (this.scene) this.scene.remove(this);
+      this.returnToPoolSignal.send([this]);
+    });
   }
 
   onPreUpdate(engine: Engine, delta: number): void {
@@ -70,6 +75,7 @@ export class SniperTurret extends Actor {
 
     //target the zero index of targets
     const nextTarget = this.targets[0];
+    console.log("sniper target: ", nextTarget);
     //if target is left of me, set direction to left
     if ((nextTarget as Actor).pos.x < this.pos.x) {
       this.direction = "left";
@@ -81,6 +87,8 @@ export class SniperTurret extends Actor {
     this.fireTik++;
     if (this.fireTik > this.fireRate) {
       this.fireTik = 0;
+      console.log("sniper fire");
+
       this.fire(this.pos, nextTarget, engine);
     }
     this.animationStates.update();
@@ -88,8 +96,14 @@ export class SniperTurret extends Actor {
 
   fire(startingPosition: Vector, target: Entity, engine: Engine) {
     if (target) {
+      console.log("in firing");
+
       const predictedPosition = getPredictedPosition((target as Actor).pos, (target as Actor).vel, this.pos, 250);
-      engine.currentScene.add(new Blast(startingPosition, predictedPosition as Vector, this.store));
+      //engine.currentScene.add(new Blast(startingPosition, (target as Actor).pos, this.store));
+      this.blast?.reset(startingPosition, (target as Actor).pos);
+      console.log(this.blast, engine);
+
+      engine.currentScene.add(this.blast as Blast);
     }
   }
 }

@@ -2,7 +2,6 @@ import { Actor, Collider, CollisionContact, CollisionType, Engine, Random, Side,
 import { HealthBar } from "../UI/healthbar";
 import { ExFSM, ExState } from "../lib/ExFSM";
 import { enemyIdleAnimation, enemyActiveAnimation } from "../animations/enemy2Animation";
-import { firstEnemy } from "./firstEnemy";
 import { angleToRads } from "../lib/utils";
 import { Signal } from "../lib/Signals";
 import { gameover } from "../scene";
@@ -18,10 +17,12 @@ export class Enemy2 extends Actor {
   angle = 0;
   currentAngle = 0;
   targetPos: Vector;
-
+  screenHeight = 0;
   animationStates = new ExFSM();
   healthbar: HealthBar;
   gameOverSignal = new Signal("gameover");
+  returnToPoolSignal = new Signal("returnToPool");
+  returnEnemyToPoolSignal = new Signal("returnEnemyToPool");
 
   constructor(position: Vector) {
     super({
@@ -29,9 +30,7 @@ export class Enemy2 extends Actor {
       radius: 16,
       collisionType: CollisionType.Passive,
     });
-    console.log("enemy id: ", this.id);
 
-    console.log("enemy id: ", this.id, "target position: ", position);
     this.scale = new Vector(2.5, 2.5);
     this.angle = this.rng.integer(0, 360);
     this.currentAngle = angleToRads(this.angle);
@@ -42,22 +41,30 @@ export class Enemy2 extends Actor {
     this.addChild(this.healthbar);
   }
 
-  onInitialize(engine: Engine): void {
-    const screenHeight = engine.screen.contentArea.height;
-    this.distance = screenHeight / 2 - this.rng.integer(0, 60);
+  setNewPosition(targetPosition: Vector) {
+    this.targetPos = targetPosition;
+    this.distance = this.screenHeight / 2 - this.rng.integer(0, 60);
+    this.angle = this.rng.integer(0, 360);
+    this.currentAngle = angleToRads(this.angle);
     const posx = this.distance * Math.cos(this.currentAngle);
     const posy = this.distance * Math.sin(this.currentAngle);
-    console.log("enemy id: ", this.id, "angle: ", this.angle);
-    console.log("enemy id: ", this.id, `posx: ${posx}, posy: ${posy}`);
-    console.log("enemy id: ", this.id, "position before", this.pos);
-
     this.pos = this.targetPos.add(new Vector(posx, posy));
-    console.log("enemy id: ", this.id, "position after", this.pos);
     const nextPosition = this.pos.sub(this.targetPos).negate().normalize().scale(this.speed);
     this.vel = nextPosition;
-    console.log("enemy id: ", this.id, "vel: ", this.vel);
+  }
 
-    this.gameOverSignal.listen(() => this.kill());
+  onInitialize(engine: Engine): void {
+    this.screenHeight = engine.screen.contentArea.height;
+    this.distance = this.screenHeight / 2 - this.rng.integer(0, 60);
+    const posx = this.distance * Math.cos(this.currentAngle);
+    const posy = this.distance * Math.sin(this.currentAngle);
+    this.pos = this.targetPos.add(new Vector(posx, posy));
+    const nextPosition = this.pos.sub(this.targetPos).negate().normalize().scale(this.speed);
+    this.vel = nextPosition;
+    this.gameOverSignal.listen(() => {
+      if (this.scene) this.scene.remove(this);
+      this.returnEnemyToPoolSignal.send([this]);
+    });
   }
 
   onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact): void {
@@ -73,7 +80,9 @@ export class Enemy2 extends Actor {
       other.owner.hp -= this.damage;
       //@ts-ignore
       if (other.owner.hp <= 0) {
-        other.owner.kill();
+        //remove from scene
+        if (other.owner.scene) other.owner.scene.remove(other.owner);
+        this.returnToPoolSignal.send([other.owner]);
       }
     }
 
@@ -81,7 +90,8 @@ export class Enemy2 extends Actor {
       sndPlugin.playSound("shipExplosion");
       //@ts-ignore
       other.owner.hp -= this.damage;
-      this.kill();
+      if (this.scene) this.scene.remove(this);
+      this.returnEnemyToPoolSignal.send([this]);
       //@ts-ignore
       if (other.owner.hp <= 0) {
         other.owner.kill();
@@ -90,7 +100,8 @@ export class Enemy2 extends Actor {
     }
 
     if (this.hp <= 0) {
-      this.kill();
+      if (this.scene) this.scene.remove(this);
+      this.returnEnemyToPoolSignal.send([this]);
     }
   }
 

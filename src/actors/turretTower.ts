@@ -28,7 +28,9 @@ export class TurretTower extends Actor {
   maxhp = 50;
   healthbar: HealthBar;
   gameOverSignal = new Signal("gameover");
+  returnToPoolSignal = new Signal("returnToPool");
   cost = 25;
+  blast: Blast | undefined;
 
   constructor(spawnPosition: Vector, public store: UIStore) {
     super({
@@ -41,7 +43,7 @@ export class TurretTower extends Actor {
     });
     this.scale = new Vector(2, 2);
     this.animationStates.register(new IdleState(this), new OnlineState(this), new AlertState(this));
-
+    this.blast = new Blast(new Vector(0, 0), new Vector(0, 0), store);
     // create child actor for 'detection field'
     const detectionField = new Actor({
       name: "field",
@@ -57,16 +59,17 @@ export class TurretTower extends Actor {
     detectionField.onCollisionEnd = (self: Collider, other: Collider, side: Side, contact: CollisionContact) => {
       if (other.owner.name === "enemy" || other.owner.name === "spawn") this.targets = this.targets.filter(t => t !== other.owner);
     };
-
     this.addChild(detectionField);
-
     this.healthbar = new HealthBar(new Vector(24, 2), new Vector(-12, -20), 50);
     this.addChild(this.healthbar);
   }
   onInitialize(engine: Engine): void {
     this.animationStates.set("idle");
     setTimeout(() => this.animationStates.set("online"), 1000);
-    this.gameOverSignal.listen(() => this.kill());
+    this.gameOverSignal.listen(() => {
+      if (this.scene) this.scene.remove(this);
+      this.returnToPoolSignal.send([this]);
+    });
   }
 
   onPreUpdate(engine: Engine, delta: number): void {
@@ -103,7 +106,9 @@ export class TurretTower extends Actor {
   fire(startingPosition: Vector, target: Entity, engine: Engine) {
     if (target) {
       sndPlugin.playSound("blast");
-      engine.currentScene.add(new Blast(startingPosition, (target as Actor).pos, this.store));
+      //engine.currentScene.add(new Blast(startingPosition, (target as Actor).pos, this.store));
+      this.blast?.reset(startingPosition, (target as Actor).pos);
+      engine.currentScene.add(this.blast as Blast);
     }
   }
 }

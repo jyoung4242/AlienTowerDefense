@@ -2,10 +2,11 @@ import { Actor, Circle, Collider, CollisionContact, CollisionType, Color, Engine
 import { ExFSM, ExState } from "../lib/ExFSM";
 import { spawnActiveAnimation, spawnIdleAnimation } from "../animations/spawnAnimation";
 import { playerShip, Ship } from "./ship";
-import { gameover } from "../scene";
+import { gameover, MainScene } from "../scene";
 import { TurretTower } from "./turretTower";
 import { Signal } from "../lib/Signals";
 import { sndPlugin } from "../main";
+import { SniperTurret } from "./sniperTurret";
 
 const fieldShape = new Circle({
   radius: 200,
@@ -20,6 +21,7 @@ export class firstSpawn extends Actor {
   hp: number = 5;
   damage: number = 20;
   target: Ship | TurretTower | undefined;
+  returnToPoolSignal = new Signal("returnToPool");
 
   constructor(startingposition: Vector) {
     super({
@@ -46,7 +48,7 @@ export class firstSpawn extends Actor {
     field.onCollisionStart = (self: Collider, other: Collider, side: Side, contact: CollisionContact) => {
       if (other.owner.name === "turret") {
         const nextPosition = this.pos
-          .sub((other.owner as TurretTower).pos)
+          .sub((other.owner as TurretTower | SniperTurret).pos)
           .negate()
           .normalize()
           .scale(this.speed);
@@ -79,12 +81,15 @@ export class firstSpawn extends Actor {
         gameover();
       }
     } else if (other.owner.name === "turret") {
-      (other.owner as TurretTower).hp -= this.damage;
+      (other.owner as TurretTower | SniperTurret).hp -= this.damage;
 
       sndPlugin.playSound("turretexplosion");
       this.kill();
-      if ((other.owner as TurretTower).hp <= 0) {
-        other.owner.kill();
+      if ((other.owner as TurretTower | SniperTurret).hp <= 0) {
+        //remove from scene
+        if (other.owner.scene) other.owner.scene.remove(other.owner);
+        this.returnToPoolSignal.send([other.owner]);
+        //return to pool
       }
     }
   }

@@ -6,6 +6,9 @@ import { Signal } from "../lib/Signals";
 import { HealthBar } from "../UI/healthbar";
 import { sndPlugin } from "../main";
 import { angleToRads } from "../lib/utils";
+import { MainScene } from "../scene";
+import { SniperTurret } from "./sniperTurret";
+import { TurretTower } from "./turretTower";
 
 export class firstEnemy extends Actor {
   rng = new Random();
@@ -22,6 +25,8 @@ export class firstEnemy extends Actor {
   spawnTiks = 0;
   gameOverSignal = new Signal("gameover");
   speed = 20;
+  returnToPoolSignal = new Signal("returnToPool");
+  returnEnemyToPoolSignal = new Signal("returnEnemyToPool");
 
   constructor(targetPos: Vector, public screenHeight: number, public level?: number) {
     super({
@@ -52,7 +57,22 @@ export class firstEnemy extends Actor {
   }
 
   onInitialize(engine: Engine): void {
-    this.gameOverSignal.listen(() => this.kill());
+    this.gameOverSignal.listen(() => {
+      if (this.scene) this.scene.remove(this);
+      this.returnEnemyToPoolSignal.send([this]);
+    });
+  }
+
+  setNewPosition(targetPosition: Vector, level: number) {
+    console.log("new position: ", targetPosition);
+    this.currentAngle = this.rng.integer(0, 360);
+    this.anchorPoint = targetPosition;
+    this.level = level;
+    this.spawnTrigger = 250 - this.level * 2.5;
+    this.distanceToCenter = this.screenHeight / 2 - this.rng.integer(0, 60);
+    console.log("distance: ", this.distanceToCenter);
+    this.pos.x = this.distanceToCenter * Math.cos(angleToRads(this.currentAngle)) + targetPosition.x;
+    this.pos.y = this.distanceToCenter * Math.sin(angleToRads(this.currentAngle)) + targetPosition.y;
   }
 
   onCollisionStart(self: Collider, other: Collider, side: Side, contact: CollisionContact): void {
@@ -62,11 +82,14 @@ export class firstEnemy extends Actor {
       other.owner.hp -= 20;
       sndPlugin.playSound("turretexplosion");
       if (this.hp <= 0) {
-        this.kill();
+        if (this.scene) this.scene.remove(this);
+        this.returnEnemyToPoolSignal.send([this]);
       }
       //@ts-ignore
       if (other.owner.hp <= 0) {
-        other.owner.kill();
+        //remove from scene
+        if (other.owner.scene) other.owner.scene.remove(other.owner);
+        this.returnToPoolSignal.send([other.owner]);
       }
     }
   }
